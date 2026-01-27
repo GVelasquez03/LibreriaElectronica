@@ -1,0 +1,123 @@
+.book-detail-container {
+    min-height: 100vh;
+    background-color: #0f0f0f;
+    color: white;
+    padding: 2rem;
+}
+
+.back-button {
+    background: none;
+    border:none;
+    color: black;
+    background-color: orange;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+    padding: 6px;
+}
+
+.book-detail-content {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.book-cover img {
+    width: 300px;
+    height: 420px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.book-info {
+    max-width: 600px;
+}
+
+.book-info h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.book-info h3 {
+    font-weight: 400;
+    opacity: 0.7;
+    margin-bottom: 1.5rem;
+}
+
+.description {
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+}
+
+.price {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #f5a623;
+    margin-bottom: 1.5rem;
+}
+
+.add-to-cart {
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    /* background-color: orange; */
+    background-color: #735CDB;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.add-to-cart:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 20px rgba(255, 165, 0, 0.4);
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .book-detail-content {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .book-info {
+        text-align: center;
+    }
+}
+
+/* ✅ PLACEHOLDER DE CARGA PARA DETALLE */
+.image-placeholder-detail {
+    width: 320px;
+    height: 460px;
+    background: linear-gradient(90deg,
+            #2a2a2a 25%,
+            #3a3a3a 37%,
+            #2a2a2a 63%);
+    background-size: 400% 100%;
+    animation: shimmer 1.4s ease infinite;
+    border-radius: 12px;
+    position: absolute;
+}
+
+/* CONTENEDOR RELATIVO */
+.book-cover {
+    position: relative;
+}
+
+/* IMAGEN CON FADE */
+.book-detail-image {
+    width: 320px;
+    height: 460px;
+    object-fit: cover;
+    border-radius: 12px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.book-detail-image.loaded {
+    opacity: 1;
+}
