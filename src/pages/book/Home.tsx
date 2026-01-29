@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Carousel from "../../components/Carousel/Carousel";
 import type { Book } from "../../types/book";
 import { getAllBooks, getBooksByCategory } from "../../services/bookService";
@@ -6,16 +7,20 @@ import { getAllBooks, getBooksByCategory } from "../../services/bookService";
 const categories = [
   "Terror",
   "Fantasía",
-  "Programación",
   "Romance",
   "Ciencia Ficción",
-  "Desarrollo Personal",
 ];
 
 export default function Home() {
   const [booksByCategory, setBooksByCategory] = useState<
     Record<string, Book[]>
   >({});
+
+  // Filtro por categorias
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get("category");
+
+  //Recomendados y efecto de carga
   const [recommended, setRecommended] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,14 +39,16 @@ export default function Home() {
         // Cargar por categorías
         const data: Record<string, Book[]> = {};
 
-        for (const category of categories) {
+        for (const cat of categories) {
           try {
-            const books = await getBooksByCategory(category);
-            data[category] = books;
+            const books = await getBooksByCategory(cat);
+            console.log("Categoría:", cat, "→ libros:", books);
+            data[cat] = books;
           } catch (error) {
-            console.error("Error cargando", category, error);
+            console.error("Error cargando", cat, error);
           }
         }
+
 
         setBooksByCategory(data);
       } catch (error) {
@@ -52,7 +59,7 @@ export default function Home() {
     }
 
     loadData();
-  }, []);
+  }, [category]);
 
   if (loading) {
     return (
@@ -60,15 +67,22 @@ export default function Home() {
     );
   }
 
+  const categoriesToShow = category ? [category] : categories;
+  
+  console.log("Filtro activo:", category);
+  console.log("booksByCategory:", booksByCategory);
+
+
   return (
     <div style={{ background: "#151515ff", minHeight: "100vh" }}>
       {/*RECOMENDADOS REALES */}
-      {recommended.length > 0 && (
+      {!category && recommended.length > 0 && (
         <Carousel title="Recomendados" books={recommended} />
       )}
 
+
       {/*CARRUSELES POR CATEGORÍA */}
-      {categories.map(
+      {categoriesToShow.map(
         (category) =>
           booksByCategory[category]?.length > 0 && (
             <Carousel
@@ -78,6 +92,7 @@ export default function Home() {
             />
           )
       )}
+
     </div>
   );
 }

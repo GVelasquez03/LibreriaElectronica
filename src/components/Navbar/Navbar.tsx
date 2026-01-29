@@ -4,26 +4,19 @@ import { isAuthenticated, logout } from "../../services/authService";
 import Swal from "sweetalert2";
 
 export default function Navbar() {
+
+  // NAVEGACION Y PARAMETROS
   const location = useLocation();
   const navigate = useNavigate();
-
   const isAdmin = location.pathname.startsWith("/admin");
 
-  // HOOKS CATEGORIA
-  const [searchParams, setSearchParams] = useSearchParams();
-  const selectedCategory = searchParams.get("category") || "Todas";
+  // LEEMOS los params para que el Select sepa qué mostrar
+  const [searchParams] = useSearchParams();
+  const selectedCategory = searchParams.get("category") ?? "";
 
-  //CATEGORIAS LOCALES
-  const categories = [
-    "Todas",
-    "Terror",
-    "Fantasía",
-    "Romance",
-    "Ciencia Ficción",
-  ];
+  const categories = ["Terror", "Fantasía", "Romance", "Ciencia Ficción"];
 
-
-  /// PARA MANEJAR EL CERRA SESION
+  // METODO PARA CERRAR SESION
   const handleLogout = async () => {
     const result = await Swal.fire({
       title: "¿Cerrar sesión?",
@@ -50,16 +43,13 @@ export default function Navbar() {
     }
   };
 
-  /// PARA MANEJAR EL FILTRO POR CATEGORIA
+  // METODO PARA MANEJAR EL CAMBIO DE CATEGORIA
   const handleCategoryChange = (value: string) => {
-    if (value === "Todas") {
-      searchParams.delete("category");
-      setSearchParams(searchParams);
+    if (value === "") {
+      navigate("/");
     } else {
-      setSearchParams({ category: value });
+      navigate(`/?category=${value}`);
     }
-
-    navigate("/"); // siempre vuelve al Home
   };
 
   return (
@@ -75,31 +65,21 @@ export default function Navbar() {
         zIndex: 100,
       }}
     >
-      {/*LOGO DE LA PAGINA*/}
       <p
-        style={{
-          fontSize: "1.3rem",
-          color: "#735CDB",
-          fontWeight: "bold",
-          cursor: "pointer",
-        }}
+        style={{ fontSize: "1.3rem", color: "#735CDB", fontWeight: "bold", cursor: "pointer" }}
         onClick={() => navigate(isAdmin ? "/admin" : "/")}
       >
         Versora
       </p>
 
-      {/* MENÚ */}
       {!isAdmin && (
         <div style={{ display: "flex", gap: "1rem", marginLeft: "3rem", cursor: "pointer" }}>
-
-          {/* INICIO NAVBAR */}
           <span className="nav-link" onClick={() => navigate("/")}>
             Inicio
           </span>
 
-          {/* CATEGORIA FILTRO NAVBAR*/}
           <select
-            value={selectedCategory}
+            value={selectedCategory} // Esto se conecta con lo que lee el hook arriba
             onChange={(e) => handleCategoryChange(e.target.value)}
             style={{
               background: "transparent",
@@ -110,6 +90,11 @@ export default function Navbar() {
               cursor: "pointer",
             }}
           >
+            {/* Opción para limpiar filtro */}
+            <option value="" style={{ color: "black" }}>
+              Todas
+            </option>
+
             {categories.map((cat) => (
               <option key={cat} value={cat} style={{ color: "black" }}>
                 {cat}
@@ -117,7 +102,6 @@ export default function Navbar() {
             ))}
           </select>
 
-          {/* FILTRADO POR POPULARIDAD */}
           <span className="nav-link">Popular</span>
         </div>
       )}
@@ -133,7 +117,6 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* LOGOUT */}
       {isAuthenticated() && (
         <button
           onClick={handleLogout}
