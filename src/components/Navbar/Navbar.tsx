@@ -2,6 +2,8 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import "./Navbar.css";
 import { isAuthenticated, logout } from "../../services/authService";
 import Swal from "sweetalert2";
+import { useEffect, useState } from "react";
+import { getAllCategories } from "../../services/CategoryService";
 
 export default function Navbar() {
 
@@ -14,7 +16,18 @@ export default function Navbar() {
   const [searchParams] = useSearchParams();
   const selectedCategory = searchParams.get("category") ?? "";
 
-  const categories = ["Terror", "Fantasía", "Romance", "Ciencia Ficción"];
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await getAllCategories();
+      // Mapeamos solo el nombre porque tu lógica actual usa strings
+      const categoryNames = data.map((c) => c.name);
+      setCategories(categoryNames);
+    };
+
+    fetchCategories();
+  }, []);
 
   // METODO PARA CERRAR SESION
   const handleLogout = async () => {
@@ -90,9 +103,10 @@ export default function Navbar() {
               cursor: "pointer",
             }}
           >
+
             {/* Opción para limpiar filtro */}
             <option value="" style={{ color: "black" }}>
-              Todas
+              Categorias
             </option>
 
             {categories.map((cat) => (

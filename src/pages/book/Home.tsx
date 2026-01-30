@@ -3,15 +3,24 @@ import { useSearchParams } from "react-router-dom";
 import Carousel from "../../components/Carousel/Carousel";
 import type { Book } from "../../types/book";
 import { getAllBooks, getBooksByCategory } from "../../services/bookService";
+import { getAllCategories } from "../../services/CategoryService";
 
-const categories = [
-  "Terror",
-  "Fantasía",
-  "Romance",
-  "Ciencia Ficción",
-];
 
 export default function Home() {
+
+  const [categories, setCategories] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const data = await getAllCategories();
+      // Mapeamos solo el nombre porque tu lógica actual usa strings
+      const categoryNames = data.map((c) => c.name);
+      setCategories(categoryNames);
+    };
+
+    fetchCategories();
+  }, []);
+  
   const [booksByCategory, setBooksByCategory] = useState<
     Record<string, Book[]>
   >({});
@@ -59,7 +68,7 @@ export default function Home() {
     }
 
     loadData();
-  }, [category]);
+  }, [categories, category]);
 
   if (loading) {
     return (
