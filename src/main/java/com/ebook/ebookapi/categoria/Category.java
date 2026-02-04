@@ -1,9 +1,14 @@
 package com.ebook.ebookapi.categoria;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.ebook.ebookapi.book.modelo.Book;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 // Usamos plural por convención, pero puede ser "category"
@@ -19,8 +24,14 @@ public class Category {
     @Column(unique = true, nullable = false)
     private String name;
 
-    //Constructor
-    public Category(String name) {
-        this.name = name;
+    // Constructor Un parametro
+    public Category(String nombre){
+        this.name = nombre;
     }
+
+
+    // Relación inversa (opcional pero recomendada)
+    @OneToMany(mappedBy = "category")
+    @JsonIgnore
+    private List<Book> books = new ArrayList<>();
 }

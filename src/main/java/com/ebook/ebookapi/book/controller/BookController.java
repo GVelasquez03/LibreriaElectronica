@@ -1,7 +1,9 @@
 package com.ebook.ebookapi.book.controller;
 
+import com.ebook.ebookapi.book.dto.BookRequestDTO;
 import com.ebook.ebookapi.book.modelo.Book;
 import com.ebook.ebookapi.book.servicio.ServicioBook;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,17 +35,15 @@ public class BookController {
 
     // Crear libro
     @PostMapping
-    public Book crearLibro(@RequestBody Book book) {
-        return servicioBook.crear(book);
+    public ResponseEntity<Book> crearLibro( @Valid @RequestBody BookRequestDTO dto) {
+        return ResponseEntity.ok(servicioBook.crear(dto));
     }
 
     // Actualizar libro
     @PutMapping("/{id}")
-    public Book actualizarLibro(
-            @PathVariable Long id,
-            @RequestBody Book book
-    ) {
-        return servicioBook.actualizar(id, book);
+    public ResponseEntity<Book> actualizarLibro(@Valid @PathVariable Long id, @RequestBody BookRequestDTO dto) {
+        // Agregamos ResponseEntity para mantener el estándar
+        return ResponseEntity.ok(servicioBook.actualizar(id, dto));
     }
 
     // Eliminar
@@ -53,9 +53,10 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
-    // Por categoría
-    @GetMapping("/category/{category}")
-    public List<Book> getByCategory(@PathVariable String category) {
-        return servicioBook.encontrarPorCategoria(category);
+    // Encontrar por Categoria
+    @GetMapping("/category/{categoryName}")
+    public List<Book> getByCategory(@PathVariable String categoryName) {
+        // Este método funcionará siempre que el Service use 'findByCategoryNameIgnoreCase'
+        return servicioBook.encontrarPorCategoria(categoryName);
     }
 }

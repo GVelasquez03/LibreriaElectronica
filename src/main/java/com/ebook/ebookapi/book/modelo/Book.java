@@ -1,5 +1,6 @@
 package com.ebook.ebookapi.book.modelo;
 
+import com.ebook.ebookapi.categoria.Category;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,6 +34,8 @@ public class Book {
     @Column(nullable = false)
     private String cover;
 
-    @Column(nullable = false)
-    private String category;
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
+
 }

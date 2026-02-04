@@ -1,6 +1,4 @@
 package com.ebook.ebookapi.categoria;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,9 +19,11 @@ public class CategoryService implements ICategoryService{
         return categoryRepository.findAll();
     }
 
-    // Registra una categoria
+    // Guardar categoria
     @Override
-    public void guardarCategoria(Category category) {
-        categoryRepository.save(category);
+    public void guardarCategoria(DtoCategoria dto) {
+        categoryRepository.save(new Category(dto.getName()));
     }
+
+
 }

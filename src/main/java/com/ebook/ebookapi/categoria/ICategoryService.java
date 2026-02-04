@@ -7,5 +7,5 @@ public interface ICategoryService {
      List<Category> obtenerCategorias();
 
      // Inicializar datos (Para pruebas)
-    void guardarCategoria(Category category);
+    void guardarCategoria(DtoCategoria category);
 }

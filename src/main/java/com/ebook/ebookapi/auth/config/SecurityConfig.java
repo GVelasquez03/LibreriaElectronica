@@ -36,7 +36,7 @@ public class SecurityConfig {
                 // Configurar permisos
                 .authorizeHttpRequests(auth -> auth
                         // RUTAS PUBLICAS
-                        .requestMatchers("/api/auth/**", "/api/books/**", "/auth/**", "/api/categories").permitAll()
+                        .requestMatchers("/api/auth/**", "/api/books/**", "/auth/**", "/api/categories/**").permitAll()
 
                         // SOLO ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

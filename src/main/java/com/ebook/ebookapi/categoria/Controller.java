@@ -1,4 +1,5 @@
 package com.ebook.ebookapi.categoria;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,15 +15,15 @@ public class Controller {
         this.categoryService = categoryService;
     }
 
-    // Metodo obtener Categorias
+    // Metodo obtener lista de Categorias
     @GetMapping
     public List<Category> obtenerCategorias(){
        return categoryService.obtenerCategorias();
     }
 
     // Agregar una Categoria
-    @PostMapping()
-    public void agregarCategoria(Category category){
-        categoryService.guardarCategoria(category);
+    @PostMapping
+    public void agregarCategoria(@Valid @RequestBody DtoCategoria dto){
+        categoryService.guardarCategoria(dto);
     }
 }
