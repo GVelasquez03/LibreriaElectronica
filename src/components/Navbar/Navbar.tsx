@@ -1,5 +1,6 @@
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import "./Navbar.css";
+import logo from "../../assets/Versora.png";
 import { isAuthenticated, logout } from "../../services/authService";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
@@ -78,30 +79,51 @@ export default function Navbar() {
         zIndex: 100,
       }}
     >
-      <p
-        style={{ fontSize: "1.3rem", color: "#735CDB", fontWeight: "bold", cursor: "pointer" }}
+      <div
         onClick={() => navigate(isAdmin ? "/admin" : "/")}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.6rem",
+          cursor: "pointer",
+        }}
       >
-        Versora
-      </p>
+
+        <img
+          src={logo}
+          alt="Versora logo"
+          style={{
+            width: "48px",
+            height: "48px",
+            borderRadius: "50%",
+            transform: "scale(1.6)", // 👈 agranda visualmente
+            transformOrigin: "center",
+          }}
+        />
+
+        <span
+          style={{
+            fontSize: "1.3rem",
+            color: "#735CDB",
+            fontWeight: "bold",
+            cursor: "pointer"
+          }}
+        >
+          Versora
+        </span>
+      </div>
+
 
       {!isAdmin && (
-        <div style={{ display: "flex", gap: "1rem", marginLeft: "3rem", cursor: "pointer" }}>
+        <div style={{ display: "flex", gap: "1rem", marginLeft: "2rem", cursor: "pointer" }}>
           <span className="nav-link" onClick={() => navigate("/")}>
             Inicio
           </span>
 
-          <select
+          <select className="nav-link"
             value={selectedCategory} // Esto se conecta con lo que lee el hook arriba
             onChange={(e) => handleCategoryChange(e.target.value)}
-            style={{
-              background: "transparent",
-              color: "white",
-              border: "1px solid #735CDB",
-              borderRadius: "5px",
-              padding: "0.35rem 0.9rem",
-              cursor: "pointer",
-            }}
+          
           >
 
             {/* Opción para limpiar filtro */}
@@ -126,7 +148,10 @@ export default function Navbar() {
             Inicio
           </span>
           <span className="nav-link" onClick={() => navigate("/admin/add")}>
-            Agregar
+            Nuevo libro
+          </span>
+          <span className="nav-link" onClick={() => navigate("/admin/add")}>
+            Nuevo Categoria
           </span>
         </div>
       )}

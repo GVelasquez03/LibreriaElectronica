@@ -1,4 +1,4 @@
-import type { Book } from "../types/book";
+import type { Book, CreateBookDTO } from "../types/book";
 
 const API_URL = "http://localhost:8080/api/books";
 
@@ -44,9 +44,8 @@ export async function getBooksByCategory(category: string): Promise<Book[]> {
     return res.json();
 }
 
-
-// Crear un libro
-export async function createBook(book: Omit<Book, "id">): Promise<Book> {
+// CREAR BOOK CON EL DTO
+export async function createBook(book: CreateBookDTO): Promise<Book> {
     const res = await fetch("http://localhost:8080/api/books", {
         method: "POST",
         headers: {
@@ -64,7 +63,9 @@ export async function createBook(book: Omit<Book, "id">): Promise<Book> {
 
 
 // Editar un libro
-export const updateBook = async (id: number, book: Partial<Book>) => {
+// Cambiamos Partial<Book> por Partial<CreateBookDTO> 
+// para que el ID de la categoría se envíe como 'categoryId: 5' y no como un objeto.
+export const updateBook = async (id: number, book: Partial<CreateBookDTO>): Promise<Book> => {
     const res = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
