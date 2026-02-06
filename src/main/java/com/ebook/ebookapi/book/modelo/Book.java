@@ -38,4 +38,8 @@ public class Book {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+    // campos para el pdf
+    @Column(name = "pdf_filename")
+    private String pdfFilename;
+
 }

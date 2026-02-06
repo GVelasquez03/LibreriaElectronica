@@ -1,7 +1,10 @@
 package com.ebook.ebookapi.book.dto;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
+
 
 import java.math.BigDecimal;
 
@@ -25,4 +28,10 @@ public class BookRequestDTO {
     @NotNull(message = "Debes asignar una categoría al libro")
     private Long categoryId;
 
+    // Para que no se mapee a la base de datos
+    @Transient
+    private MultipartFile pdfFile;
+
+    // Solo esto irá a la BD:
+    private String pdfFileName;
 }

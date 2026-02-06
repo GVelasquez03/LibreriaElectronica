@@ -1,7 +1,7 @@
 package com.ebook.ebookapi.categoria;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 @RestController
@@ -25,5 +25,21 @@ public class Controller {
     @PostMapping
     public void agregarCategoria(@Valid @RequestBody DtoCategoria dto){
         categoryService.guardarCategoria(dto);
+    }
+
+    // Actualizar categoria
+    @PutMapping("/{id}")
+    public ResponseEntity<Category> update(
+            @PathVariable Long id,
+            @RequestBody Category category
+    ) {
+        return ResponseEntity.ok(categoryService.update(id, category));
+    }
+
+    // Eliminar categoria
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        categoryService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

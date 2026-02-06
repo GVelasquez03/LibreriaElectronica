@@ -14,11 +14,14 @@ public class ServicioBook implements IServicioBook{
 
     private final BookRepository bookrepository;
     private final CategoryRepository categoryRepository;
+    private final FileStorageService fileStorageService;
 
     //Inyeccion de dependencia
-    public ServicioBook(BookRepository bookrepository, CategoryRepository categoryRepository) {
+    public ServicioBook(BookRepository bookrepository, CategoryRepository categoryRepository,
+    FileStorageService fileStorageService) {
         this.bookrepository = bookrepository;
         this.categoryRepository = categoryRepository;
+        this.fileStorageService = fileStorageService;
     }
 
     //Servicio encontrar libros
@@ -51,6 +54,11 @@ public class ServicioBook implements IServicioBook{
         book.setPrice(dto.getPrice());
         book.setCategory(category);
 
+        // 3. Manejar PDF si existe
+        if (dto.getPdfFile() != null && !dto.getPdfFile().isEmpty()) {
+            String fileName = fileStorageService.storeFile(dto.getPdfFile());
+            book.setPdfFilename(fileName);
+        }
         return bookrepository.save(book);
     }
 
