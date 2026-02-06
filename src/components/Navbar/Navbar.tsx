@@ -96,14 +96,14 @@ export default function Navbar() {
             width: "48px",
             height: "48px",
             borderRadius: "50%",
-            transform: "scale(1.6)", // 👈 agranda visualmente
+            transform: "scale(1.4)", // 👈 agranda visualmente
             transformOrigin: "center",
           }}
         />
 
         <span
           style={{
-            fontSize: "1.3rem",
+            fontSize: "1.6rem",
             color: "#735CDB",
             fontWeight: "bold",
             cursor: "pointer"
@@ -150,7 +150,7 @@ export default function Navbar() {
           <span className="nav-link" onClick={() => navigate("/admin/add")}>
             Nuevo libro
           </span>
-          <span className="nav-link" onClick={() => navigate("/admin/add")}>
+          <span className="nav-link" onClick={() => navigate("/admin/categories")}>
             Nuevo Categoria
           </span>
         </div>

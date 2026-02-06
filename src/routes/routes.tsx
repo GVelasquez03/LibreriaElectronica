@@ -12,6 +12,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import AdminHome from "../pages/admin/AdminHome";
 import AdminAdd from "../pages/admin/AdminAdd";
 import AdminEdit from "../pages/admin/AdminEdit";
+import AdminCategories from "../pages/admin/AdminCategories";
 
 export default function AppRoutes() {
   return (
@@ -34,6 +35,8 @@ export default function AppRoutes() {
         <Route index element={<AdminHome />} />        {/* /admin */}
         <Route path="add" element={<AdminAdd />} />   {/* /admin/add */}
         <Route path="edit/:id" element={<AdminEdit />} /> {/* /admin/edit/1 */}
+        <Route path="categories" element={<AdminCategories />} />
+
       </Route>
 
      
