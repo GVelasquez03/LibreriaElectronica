@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -47,7 +48,10 @@ public class SecurityConfig {
                 // Filtro para verificar si el usuario trae un Token JWT válido
                 .addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class)
                 .formLogin(AbstractHttpConfigurer::disable) // Desactivar login por formulario
-                .httpBasic(AbstractHttpConfigurer::disable); // Desactivar basic auth
+                .httpBasic(AbstractHttpConfigurer::disable) // Desactivar basic auth
+                .headers(headers -> headers
+                .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable) // ← Esto deshabilita X-Frame-Options
+        );
 
         return http.build();
     }

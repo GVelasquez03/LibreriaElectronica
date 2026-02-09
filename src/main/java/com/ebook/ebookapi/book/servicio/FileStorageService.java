@@ -6,7 +6,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.util.StringUtils;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -74,6 +77,44 @@ public class FileStorageService {
         }
     }
 
+    // Servicio para recortar el pdf
+    public Resource getPreviewPdf(String filename, int maxPages) throws IOException {
+        // Cargar el PDF original
+        Path filePath = this.fileStorageLocation.resolve(filename).normalize();
+        File originalFile = filePath.toFile();
+
+        // Crear un PDF temporal con solo las primeras páginas
+        try (PDDocument document = PDDocument.load(originalFile)) {
+            int totalPages = document.getNumberOfPages();
+            int pagesToKeep = Math.min(maxPages, totalPages);
+
+            // Crear nuevo documento con solo las primeras páginas
+            try (PDDocument previewDoc = new PDDocument()) {
+                for (int i = 0; i < pagesToKeep; i++) {
+                    PDPage page = document.getPage(i);
+                    previewDoc.addPage(page);
+                }
+
+                // Guardar en archivo temporal
+                Path tempFilePath = Files.createTempFile("preview_", ".pdf");
+                previewDoc.save(tempFilePath.toFile());
+
+                // Crear recurso desde el archivo temporal
+                Resource resource = new UrlResource(tempFilePath.toUri());
+
+                // Programar eliminación del archivo temporal
+                tempFilePath.toFile().deleteOnExit();
+
+                return resource;
+            }
+        }
+    }
+
+    // Método simplificado para 2 páginas
+    public Resource getTwoPagePreview(String filename) throws IOException {
+        return getPreviewPdf(filename, 3);
+    }
+
     // Metodo para eliminar el archivo
     public void deleteFile(String filename) {
         try {
@@ -83,4 +124,6 @@ public class FileStorageService {
             throw new RuntimeException("No se pudo eliminar el archivo: " + filename, ex);
         }
     }
+
+
 }

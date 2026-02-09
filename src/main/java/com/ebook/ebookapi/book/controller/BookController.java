@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -36,11 +37,6 @@ public class BookController {
     @GetMapping
     public List<Book> obtenerLibros() {
         return servicioBook.ObtenerLibros();
-    }
-
-    @GetMapping("/test")
-    public ResponseEntity<String> test() {
-        return ResponseEntity.ok("Backend funcionando: " + new Date());
     }
 
     // Obtener libros por ID
@@ -74,13 +70,7 @@ public class BookController {
         }
     }
 
-//    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<Book> createBookSimple(@RequestBody BookRequestDTO bookRequestDTO) {
-//        Book book = servicioBook.crear(bookRequestDTO);
-//        return ResponseEntity.ok(book);
-//    }
-
-    // endpoint para descargar un libro
+    // endpoint para obtener un libro
     @GetMapping("/pdf/{filename}")
     public ResponseEntity<Resource> getPdf(@PathVariable String filename) {
         Resource resource = fileStorageService.loadFileAsResource(filename);
@@ -89,6 +79,38 @@ public class BookController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
                 .body(resource);
     }
+
+    // Obtener pdf con solo dos pag
+    @GetMapping("/pdf/preview/{filename:.+}")
+    public ResponseEntity<Resource> getPdfPreview(@PathVariable String filename) {
+        try {
+            // Obtener PDF recortado (solo 2 páginas)
+            Resource resource = fileStorageService.getTwoPagePreview(filename);
+
+            // Configurar headers para iframe
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\"preview_" + filename + "\"")
+                    .header("X-Frame-Options", "ALLOW-FROM http://localhost:3000")
+                    .header("Cache-Control", "no-store, must-revalidate")
+                    .header("Pragma", "no-cache")
+                    .header("Expires", "0")
+                    .body(resource);
+
+        } catch (IOException e) {
+            // Si falla el recorte, devolver PDF completo como fallback
+            Resource resource = fileStorageService.loadFileAsResource(filename);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "inline; filename=\"" + filename + "\"")
+                    .body(resource);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
     // Para descargar (forzar descarga)
     @GetMapping("/pdf/download/{filename}")
