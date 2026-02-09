@@ -77,9 +77,6 @@ export default function Home() {
   }
 
   const categoriesToShow = category ? [category] : categories;
-  
-  console.log("Filtro activo:", category);
-  console.log("booksByCategory:", booksByCategory);
 
 
   return (

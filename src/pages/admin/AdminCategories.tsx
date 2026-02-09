@@ -1,11 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import Swal from "sweetalert2";
-import {
-    getAllCategories,
-    createCategory,
-    updateCategory,
-    deleteCategory,
-} from "../../services/CategoryService";
+import {getAllCategories,createCategory,updateCategory,deleteCategory,} from "../../services/CategoryService";
 import type { Categoria } from "../../types/categoria";
 import { Plus, Edit2, Trash2, RefreshCw } from "lucide-react";
 

@@ -3,15 +3,20 @@ import { useNavigate } from "react-router-dom";
 import { createBook } from "../../services/bookService";
 import Swal from "sweetalert2";
 import { getAllCategories } from "../../services/CategoryService";
-import { ArrowLeft, BookOpen, Upload, DollarSign, User, Image, Tag } from "lucide-react";
+import {ArrowLeft,BookOpen,Upload,DollarSign,User,Image,Tag,FileText,X,CheckCircle} from "lucide-react";
 import type { Categoria } from "../../types/categoria";
 import type { CreateBookDTO } from "../../types/book";
+
 
 export default function AdminAdd() {
     const navigate = useNavigate();
     const [categories, setCategories] = useState<Categoria[]>([]);
     const [loading, setLoading] = useState(false);
     const [isLoadingCategories, setIsLoadingCategories] = useState(true);
+
+    const [pdfFile, setPdfFile] = useState<File | null>(null);
+    const [pdfPreview, setPdfPreview] = useState<string>("");
+    const [pdfSize, setPdfSize] = useState<string>("");
 
     const [form, setForm] = useState<CreateBookDTO>({
         title: "",
@@ -55,10 +60,57 @@ export default function AdminAdd() {
         }));
     };
 
+    const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+
+        if (file) {
+            // Validar que sea PDF
+            if (file.type !== "application/pdf") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Formato inválido",
+                    text: "Solo se permiten archivos PDF",
+                    confirmButtonColor: "#ef4444",
+                    background: "#1f2937",
+                    color: "#fff",
+                });
+                e.target.value = "";
+                return;
+            }
+
+            // Validar tamaño (50MB máximo)
+            const maxSize = 50 * 1024 * 1024; // 50MB
+            if (file.size > maxSize) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Archivo muy grande",
+                    text: `El archivo PDF no debe superar los 50MB (tienes: ${(file.size / (1024 * 1024)).toFixed(2)}MB)`,
+                    confirmButtonColor: "#ef4444",
+                    background: "#1f2937",
+                    color: "#fff",
+                });
+                e.target.value = "";
+                return;
+            }
+
+            setPdfFile(file);
+            setPdfPreview(file.name);
+            setPdfSize((file.size / (1024 * 1024)).toFixed(2) + " MB");
+        }
+    };
+
+    const handleRemovePdf = () => {
+        setPdfFile(null);
+        setPdfPreview("");
+        setPdfSize("");
+        const fileInput = document.getElementById("pdfFile") as HTMLInputElement;
+        if (fileInput) fileInput.value = "";
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validación mejorada
+        // Validación
         const errors = [];
         if (!form.title.trim()) errors.push("título");
         if (!form.author.trim()) errors.push("autor");
@@ -80,43 +132,66 @@ export default function AdminAdd() {
 
         try {
             setLoading(true);
-            const payload: CreateBookDTO = {
-                ...form,
-                categoryId: Number(form.categoryId)
+
+            // Preparar payload
+            const payload = {
+                title: form.title,
+                author: form.author,
+                description: form.description || "",
+                categoryId: form.categoryId,
+                cover: form.cover,
+                price: form.price
             };
 
-            await createBook(payload);
+            console.log("Enviando libro con payload:", payload);
+            console.log("PDF adjunto:", pdfFile ? pdfFile.name : "Ninguno");
 
+            const createdBook = await createBook(payload, pdfFile || undefined);
+            console.log("Libro creado:", createdBook);
+
+            // Éxito
             Swal.fire({
                 icon: "success",
                 title: "¡Libro agregado!",
-                text: "El libro se registró correctamente",
+                html: `<div class="text-left">
+                    <p>El libro se registró correctamente</p>
+                    ${pdfFile ? `<p class="mt-2 text-green-400">✓ PDF adjunto: ${pdfFile.name}</p>` : ''}
+                </div>`,
                 confirmButtonColor: "#10b981",
                 background: "#1f2937",
                 color: "#fff",
                 showConfirmButton: false,
-                timer: 2000,
+                timer: 3000,
             }).then(() => {
                 navigate("/admin");
             });
 
-        } catch (error) {
+        }catch (error: unknown) {
+            console.error("Error completo:", error);
+
+            let errorMessage = "No se pudo guardar el libro. Intenta nuevamente.";
+
+            if (error instanceof Error) {
+                if (error.message.includes("Error 415")) {
+                    errorMessage = "Error en el formato de datos. Verifica que todos los campos sean válidos.";
+                } else if (error.message.includes("Error 500")) {
+                    errorMessage = "Error interno del servidor. Verifica la consola del backend.";
+                }
+            }
+
             Swal.fire({
                 icon: "error",
                 title: "Error al guardar",
-                text: "No se pudo guardar el libro. Por favor, intenta nuevamente.",
+                text: errorMessage,
                 confirmButtonColor: "#ef4444",
                 background: "#1f2937",
                 color: "#fff",
             });
-            console.error("Error al crear libro:", error);
-        } finally {
-            setLoading(false);
-        }
+        }   
     };
 
     const handleCancel = () => {
-        if (form.title || form.author || form.description || form.cover) {
+        if (form.title || form.author || form.description || form.cover || pdfFile) {
             Swal.fire({
                 title: "¿Cancelar cambios?",
                 text: "Los cambios no guardados se perderán",
@@ -141,7 +216,7 @@ export default function AdminAdd() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-6">
             <div className="max-w-6xl mx-auto">
-                {/* Header Compacto */}
+                {/* Header */}
                 <div className="mb-8">
                     <button
                         onClick={handleCancel}
@@ -166,10 +241,10 @@ export default function AdminAdd() {
                     </div>
                 </div>
 
-                {/* Formulario Compacto en Grid 2x2 */}
+                {/* Formulario */}
                 <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 shadow-xl">
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Primera Fila - 2 columnas */}
+                        {/* Primera Fila */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Título */}
                             <div className="space-y-2">
@@ -206,7 +281,7 @@ export default function AdminAdd() {
                             </div>
                         </div>
 
-                        {/* Segunda Fila - 2 columnas */}
+                        {/* Segunda Fila */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Categoría */}
                             <div className="space-y-2">
@@ -243,12 +318,13 @@ export default function AdminAdd() {
                                     </span>
                                     <input
                                         type="number"
+                                        step="any"
                                         name="price"
                                         value={form.price}
                                         onChange={handleChange}
                                         placeholder="0.00"
                                         min="0"
-                                        step="0.01"
+                        
                                         className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         required
                                     />
@@ -256,7 +332,7 @@ export default function AdminAdd() {
                             </div>
                         </div>
 
-                        {/* Tercera Fila - URL de Portada (Full width) */}
+                        {/* URL de Portada */}
                         <div className="space-y-2">
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                                 <Image className="w-4 h-4" />
@@ -273,7 +349,62 @@ export default function AdminAdd() {
                             />
                         </div>
 
-                        {/* Cuarta Fila - Descripción (Full width) */}
+                        {/* Subir PDF */}
+                        <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                                <FileText className="w-4 h-4" />
+                                Archivo PDF (Opcional)
+                                {pdfFile && <CheckCircle className="w-4 h-4 text-green-500 ml-1" />}
+                            </label>
+
+                            <div className="relative">
+                                <input
+                                    id="pdfFile"
+                                    type="file"
+                                    accept=".pdf,application/pdf"
+                                    onChange={handlePdfChange}
+                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                                />
+                            </div>
+
+                            {/* Preview del PDF seleccionado */}
+                            {pdfPreview && (
+                                <div className="mt-3 p-4 bg-gray-700/50 rounded-lg border border-green-500/30">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <FileText className="w-5 h-5 text-green-400" />
+                                            <div>
+                                                <p className="text-white font-medium truncate max-w-xs">
+                                                    {pdfPreview}
+                                                </p>
+                                                <div className="flex items-center gap-3 mt-1">
+                                                    <span className="text-gray-400 text-sm">
+                                                        {pdfSize}
+                                                    </span>
+                                                    <span className="text-xs bg-green-900/50 text-green-300 px-2 py-1 rounded">
+                                                        ✓ Listo para subir
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={handleRemovePdf}
+                                            className="p-2 hover:bg-gray-600 rounded-lg transition"
+                                            title="Eliminar PDF"
+                                        >
+                                            <X className="w-4 h-4 text-gray-400" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <p className="text-gray-500 text-xs mt-1">
+                                Máximo 50MB. Solo archivos PDF. Este campo es opcional.
+                            </p>
+                        </div>
+
+                        {/* Descripción */}
                         <div className="space-y-2">
                             <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
                                 <BookOpen className="w-4 h-4" />
@@ -289,32 +420,36 @@ export default function AdminAdd() {
                             />
                         </div>
 
-                        {/* Preview de Imagen Simple */}
+                        {/* Preview de Portada */}
                         {form.cover && (
-                            <div className="mt-6 p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+                            <div className="p-4 bg-gray-700/50 rounded-lg border border-gray-600">
                                 <h4 className="text-sm font-medium text-gray-300 mb-3">
                                     Vista previa de la portada
                                 </h4>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-24 h-32 bg-gradient-to-br from-gray-600 to-gray-800 rounded-md overflow-hidden flex-shrink-0">
+                                    <div className="w-24 h-32 bg-gradient-to-br from-gray-600 to-gray-800 rounded-md overflow-hidden flex-shrink-0 border border-gray-500">
                                         <img
                                             src={form.cover}
                                             alt="Preview"
                                             className="w-full h-full object-cover"
                                             onError={(e) => {
                                                 e.currentTarget.style.display = 'none';
+                                                const parent = e.currentTarget.parentElement;
+                                                if (parent) {
+                                                    parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">Imagen no disponible</div>';
+                                                }
                                             }}
                                         />
                                     </div>
                                     <div className="text-sm text-gray-400">
                                         <p className="font-medium text-white mb-1">URL válida</p>
-                                        <p className="truncate max-w-md">{form.cover}</p>
+                                        <p className="truncate max-w-md text-xs">{form.cover}</p>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Botones de Acción */}
+                        {/* Botones */}
                         <div className="pt-6 border-t border-gray-700">
                             <div className="flex flex-col sm:flex-row justify-end gap-3">
                                 <button
@@ -348,7 +483,7 @@ export default function AdminAdd() {
                     </form>
                 </div>
 
-                {/* Nota de Campos Obligatorios */}
+                {/* Nota */}
                 <div className="mt-6 text-center">
                     <p className="text-gray-500 text-sm">
                         <span className="text-yellow-500">*</span> Campos obligatorios

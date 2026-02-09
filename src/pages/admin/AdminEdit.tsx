@@ -1,46 +1,94 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import {
+    ArrowLeft,
+    BookOpen,
+    Upload,
+    DollarSign,
+    User,
+    Image,
+    Tag,
+    Edit
+} from "lucide-react";
 
-import type { Book } from "../../types/book";
 import { getBookById, updateBook } from "../../services/bookService";
+import { getAllCategories } from "../../services/CategoryService";
+
+interface Category {
+    id: number;
+    name: string;
+}
+
+interface BookFormData {
+    title: string;
+    author: string;
+    description: string;
+    categoryId: number;
+    cover: string;
+    price: number;
+}
 
 export default function AdminEdit() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    const [form, setForm] = useState<Omit<Book, "id"> | null>(null);
+    const [form, setForm] = useState<BookFormData | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
+    const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
-    // 📥 cargar libro
+    // Cargar categorías y libro
     useEffect(() => {
-        async function loadBook() {
+        const loadData = async () => {
             try {
-                const data = await getBookById(Number(id));
-                setForm(data);
-            } catch {
+                setIsLoadingCategories(true);
+
+                // Cargar categorías
+                const categoriesData = await getAllCategories();
+                setCategories(categoriesData);
+
+                // Cargar libro
+                if (id) {
+                    const bookData = await getBookById(Number(id));
+
+                    setForm({
+                        title: bookData.title,
+                        author: bookData.author,
+                        description: bookData.description || "",
+                        categoryId: bookData.categoryId || (bookData.categoryId|| 0),
+                        cover: bookData.cover,
+                        price: bookData.price
+                    });
+                }
+            } catch (error) {
+                console.error("Error cargando datos:", error);
                 Swal.fire({
                     icon: "error",
-                    title: "Libro no encontrado",
-                    background: "#0f172a",
-                    color: "#fbbf24",
+                    title: "Error",
+                    text: "No se pudieron cargar los datos",
+                    confirmButtonColor: "#ef4444",
+                    background: "#1f2937",
+                    color: "#fff",
                 });
                 navigate("/admin");
+            } finally {
+                setIsLoadingCategories(false);
             }
-        }
+        };
 
-        loadBook();
+        loadData();
     }, [id, navigate]);
 
     const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
         if (!form) return;
         const { name, value } = e.target;
 
         setForm({
             ...form,
-            [name]: name === "price" ? Number(value) : value,
+            [name]: (name === "price" || name === "categoryId") ? Number(value) : value,
         });
     };
 
@@ -48,137 +96,341 @@ export default function AdminEdit() {
         e.preventDefault();
         if (!form) return;
 
+        // Validación
+        const errors = [];
+        if (!form.title.trim()) errors.push("título");
+        if (!form.author.trim()) errors.push("autor");
+        if (!form.categoryId || form.categoryId === 0) errors.push("categoría");
+        if (!form.cover.trim()) errors.push("URL de portada");
+        if (!form.price || form.price <= 0) errors.push("precio válido");
+
+        if (errors.length > 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "Campos incompletos",
+                html: `<div class="text-left"><p class="mb-2">Por favor completa:</p><ul class="list-disc pl-4">${errors.map(err => `<li class="text-yellow-300">${err}</li>`).join('')}</ul></div>`,
+                confirmButtonColor: "#3b82f6",
+                background: "#1f2937",
+                color: "#fff",
+            });
+            return;
+        }
+
         try {
             setLoading(true);
-            await updateBook(Number(id), form);
 
+            // Preparar payload para actualización
+            const payload = {
+                title: form.title,
+                author: form.author,
+                description: form.description || "",
+                categoryId: form.categoryId,
+                cover: form.cover,
+                price: form.price
+            };
+
+            console.log("Actualizando libro:", payload);
+
+            // Actualizar libro
+            await updateBook(Number(id), payload);
+
+            // Éxito
             Swal.fire({
                 icon: "success",
-                title: "Libro actualizado",
+                title: "¡Libro actualizado!",
                 text: "Los cambios se guardaron correctamente",
-                background: "#0f172a",
-                color: "#fbbf24",
-                confirmButtonColor: "#f59e0b",
-                timer: 1600,
+                confirmButtonColor: "#10b981",
+                background: "#1f2937",
+                color: "#fff",
                 showConfirmButton: false,
+                timer: 2000,
+            }).then(() => {
+                navigate("/admin");
             });
 
-            setTimeout(() => navigate("/admin"), 1600);
-        } catch {
+        } catch (error: unknown) {
+            console.error("Error actualizando libro:", error);
+
+            let errorMessage = "No se pudieron guardar los cambios. Intenta nuevamente.";
+
+            if (error instanceof Error) {
+                if (error.message.includes("Error 404")) {
+                    errorMessage = "Libro no encontrado.";
+                } else if (error.message.includes("Error 500")) {
+                    errorMessage = "Error interno del servidor.";
+                }
+            }
+
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "No se pudieron guardar los cambios",
-                background: "#0f172a",
-                color: "#fbbf24",
+                text: errorMessage,
                 confirmButtonColor: "#ef4444",
+                background: "#1f2937",
+                color: "#fff",
             });
         } finally {
             setLoading(false);
         }
     };
 
+    const handleCancel = () => {
+        Swal.fire({
+            title: "¿Descartar cambios?",
+            text: "Los cambios no guardados se perderán",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Sí, descartar",
+            cancelButtonText: "Continuar editando",
+            background: "#1f2937",
+            color: "#fff",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                navigate("/admin");
+            }
+        });
+    };
+
     if (!form) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#151515] text-white">
-                Cargando libro...
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                    <p className="text-gray-300">Cargando libro...</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-zinc-900 via-zinc-950 to-black px-4">
-            <div className="w-full max-w-3xl bg-zinc-900/90 backdrop-blur border border-violet-500/30 rounded-2xl shadow-[0_0_40px_#735CDB80] p-6">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-6">
+            <div className="max-w-6xl mx-auto">
+                {/* Header */}
+                <div className="mb-8">
+                    <button
+                        onClick={handleCancel}
+                        className="flex items-center gap-2 text-gray-300 hover:text-white transition mb-4 group"
+                    >
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span>Volver al panel</span>
+                    </button>
 
-                <h2 className="text-2xl font-semibold text-[#735CDB] mb-6 text-center">
-                    Modificar libro
-                </h2>
-
-                <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
-
-                    <Input label="Título" name="title" value={form.title} onChange={handleChange} />
-                    <Input label="Autor" name="author" value={form.author} onChange={handleChange} />
-
-                    <Input label="Categoría" name="category" value={form.category} onChange={handleChange} />
-                    <Input label="Precio" name="price" type="number" value={form.price} onChange={handleChange} />
-
-                    <Input
-                        label="URL Portada"
-                        name="cover"
-                        value={form.cover}
-                        onChange={handleChange}
-                        className="col-span-2"
-                    />
-
-                    {/* DESCRIPCIÓN */}
-                    <div className="col-span-2">
-                        <label className="block text-sm text-[#735CDB] mb-1">
-                            Descripción
-                        </label>
-                        <textarea
-                            name="description"
-                            rows={2}
-                            value={form.description}
-                            onChange={handleChange}
-                            className="w-full rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-2 text-white text-sm focus:ring-2 focus:ring-[#735CDB] focus:outline-none"
-                        />
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-xl">
+                            <Edit className="w-8 h-8 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold text-white">
+                                Editar Libro
+                            </h1>
+                            <p className="text-gray-300 text-sm">
+                                Modifica los campos del libro existente
+                            </p>
+                        </div>
                     </div>
+                </div>
 
-                    {/* BOTONES */}
-                    <div className="col-span-2 flex justify-end gap-3 pt-4">
-                        <button
-                            type="button"
-                            onClick={() => navigate("/admin")}
-                            className="px-5 py-2 rounded-lg bg-zinc-700 hover:bg-zinc-600 text-white transition"
-                        >
-                            Cancelar
-                        </button>
+                {/* Formulario */}
+                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 shadow-xl">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Primera Fila */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Título */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                                    <BookOpen className="w-4 h-4" />
+                                    Título del Libro *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="title"
+                                    value={form.title}
+                                    onChange={handleChange}
+                                    placeholder="Ej: Cien años de soledad"
+                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    required
+                                />
+                            </div>
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="px-6 py-2 rounded-lg bg-[#735CDB] hover:bg-[#5f4bc7] text-white font-semibold transition shadow-[0_0_20px_#735CDB80] disabled:opacity-50"
-                        >
-                            {loading ? "Guardando..." : "Guardar"}
-                        </button>
-                    </div>
+                            {/* Autor */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                                    <User className="w-4 h-4" />
+                                    Autor *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="author"
+                                    value={form.author}
+                                    onChange={handleChange}
+                                    placeholder="Ej: Gabriel García Márquez"
+                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                    required
+                                />
+                            </div>
+                        </div>
 
-                </form>
+                        {/* Segunda Fila */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Categoría */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                                    <Tag className="w-4 h-4" />
+                                    Categoría *
+                                </label>
+                                <select
+                                    name="categoryId"
+                                    value={form.categoryId}
+                                    onChange={handleChange}
+                                    disabled={isLoadingCategories}
+                                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition appearance-none disabled:opacity-50"
+                                    required
+                                >
+                                    <option value="">{isLoadingCategories ? "Cargando categorías..." : "Selecciona una categoría"}</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id} className="bg-gray-800">
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* Precio */}
+                            <div className="space-y-2">
+                                <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                                    <DollarSign className="w-4 h-4" />
+                                    Precio *
+                                </label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400">
+                                        $
+                                    </span>
+                                    <input
+                                        type="text"
+                                        name="price"
+                                        value={form.price}
+                                        onChange={(e) => {
+                                            const value = e.target.value.replace(/[^0-9.]/g, '');
+                                            if ((value.match(/\./g) || []).length <= 1) {
+                                                setForm(prev => prev ? {
+                                                    ...prev,
+                                                    price: value === '' ? 0 : parseFloat(value)
+                                                } : null);
+                                            }
+                                        }}
+                                        placeholder="0.00"
+                                        className="w-full pl-10 pr-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                        required
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* URL de Portada */}
+                        <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                                <Image className="w-4 h-4" />
+                                URL de la Portada *
+                            </label>
+                            <input
+                                type="url"
+                                name="cover"
+                                value={form.cover}
+                                onChange={handleChange}
+                                placeholder="https://ejemplo.com/imagen.jpg"
+                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                required
+                            />
+                        </div>
+
+                        {/* Descripción */}
+                        <div className="space-y-2">
+                            <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                                <BookOpen className="w-4 h-4" />
+                                Descripción
+                            </label>
+                            <textarea
+                                name="description"
+                                rows={3}
+                                value={form.description}
+                                onChange={handleChange}
+                                placeholder="Describe el libro, su sinopsis, características importantes..."
+                                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
+                            />
+                        </div>
+
+                        {/* Preview de Portada */}
+                        {form.cover && (
+                            <div className="p-4 bg-gray-700/50 rounded-lg border border-gray-600">
+                                <h4 className="text-sm font-medium text-gray-300 mb-3">
+                                    Vista previa de la portada actual
+                                </h4>
+                                <div className="flex items-center gap-4">
+                                    <div className="w-24 h-32 bg-gradient-to-br from-gray-600 to-gray-800 rounded-md overflow-hidden flex-shrink-0 border border-gray-500">
+                                        <img
+                                            src={form.cover}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                const parent = e.currentTarget.parentElement;
+                                                if (parent) {
+                                                    parent.innerHTML = '<div class="flex items-center justify-center h-full text-gray-500">Imagen no disponible</div>';
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="text-sm text-gray-400">
+                                        <p className="font-medium text-white mb-1">URL actual</p>
+                                        <p className="truncate max-w-md text-xs">{form.cover}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Botones */}
+                        <div className="pt-6 border-t border-gray-700">
+                            <div className="flex flex-col sm:flex-row justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleCancel}
+                                    className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-medium flex items-center justify-center gap-2 order-2 sm:order-1"
+                                >
+                                    <ArrowLeft className="w-4 h-4" />
+                                    Cancelar
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white rounded-lg transition font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                                            Guardando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Upload className="w-5 h-5" />
+                                            Actualizar Libro
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                {/* Nota */}
+                <div className="mt-6 text-center">
+                    <p className="text-gray-500 text-sm">
+                        <span className="text-yellow-500">*</span> Campos obligatorios
+                    </p>
+                </div>
             </div>
-        </div>
-    );
-
-}
-
-interface InputProps {
-    label: string;
-    name: string;
-    value: string | number;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    type?: string;
-    className?: string;
-}
-
-function Input({
-    label,
-    name,
-    value,
-    onChange,
-    type = "text",
-    className = "",
-}: InputProps) {
-    return (
-        <div className={className}>
-            <label className="block text-sm text-[#735CDB] mb-1">
-                {label}
-            </label>
-            <input
-                type={type}
-                name={name}
-                value={value}
-                onChange={onChange}
-                className="w-full rounded-lg bg-zinc-800 border border-zinc-700 px-3 py-2 text-white text-sm focus:ring-2 focus:ring-[#735CDB] focus:outline-none"
-            />
         </div>
     );
 }

@@ -1,4 +1,4 @@
-import type { Book, CreateBookDTO } from "../types/book";
+import type { Book, BookRequest, CreateBookDTO } from "../types/book";
 
 const API_URL = "http://localhost:8080/api/books";
 
@@ -22,8 +22,8 @@ export async function deleteBook(id: number) {
     if (!res.ok) throw new Error("Error al eliminar libro");
 }
 
-// obtener libor por id
-export async function getBookById(id: number): Promise<Book> {
+// obtener libor por id  >>>>>>>>>>>>>  /// modifique para que me devuelva un bookRelation no "book"
+export async function getBookById(id: number): Promise<BookRequest> {
     const response = await fetch(`${API_URL}/${id}`);
 
     if (!response.ok) {
@@ -44,27 +44,79 @@ export async function getBooksByCategory(category: string): Promise<Book[]> {
     return res.json();
 }
 
-// CREAR BOOK CON EL DTO
-export async function createBook(book: CreateBookDTO): Promise<Book> {
-    const res = await fetch("http://localhost:8080/api/books", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(book),
-    });
+// Crear un libro con o sin PDF :)
+export const createBook = async (bookData: CreateBookDTO, pdfFile?: File) => {
+    try {
+        // 1. Crear FormData
+        const formData = new FormData();
 
-    if (!res.ok) {
-        throw new Error("Error al crear libro");
+        // 2. Agregar datos del libro como JSON string
+        formData.append("bookData", JSON.stringify(bookData));
+
+        // 3. Agregar archivo PDF si existe
+        if (pdfFile) {
+            formData.append("pdfFile", pdfFile);
+        }
+
+        console.log("Enviando FormData con:", {
+            bookData: formData,
+            hasPdf: !!pdfFile
+        });
+
+        // 4. Enviar petición
+        const response = await fetch(`${API_URL}`, {
+            method: "POST",
+            body: formData,
+            // NO agregar headers 'Content-Type' - fetch lo hace automático con boundary
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText}`);
+        }
+
+        const result = await response.json();
+        console.log("Libro creado exitosamente:", result);
+        return result;
+
+    } catch (error) {
+        console.error("Error creando libro:", error);
+        throw error;
     }
+};
 
-    return res.json();
-}
+// Función para descargar PDF
+export const downloadBookPdf = async (filename: string) => {
+    try {
+        const response = await fetch(`${API_URL}/pdf/${filename}`);
+
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    } catch (error) {
+        console.error("Error descargando PDF:", error);
+        throw error;
+    }
+};
+
+// Función para ver PDF en nueva pestaña
+export const viewBookPdf = (filename: string): void => {
+    const url = `${API_URL}/books/pdf/${filename}`;
+    window.open(url, "_blank");
+};
 
 
-// Editar un libro
-// Cambiamos Partial<Book> por Partial<CreateBookDTO> 
-// para que el ID de la categoría se envíe como 'categoryId: 5' y no como un objeto.
+// EDITAR UN BOOK
 export const updateBook = async (id: number, book: Partial<CreateBookDTO>): Promise<Book> => {
     const res = await fetch(`${API_URL}/${id}`, {
         method: "PUT",
