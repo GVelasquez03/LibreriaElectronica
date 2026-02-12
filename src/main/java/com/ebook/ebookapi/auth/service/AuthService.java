@@ -26,6 +26,11 @@ public class AuthService {
             throw new RuntimeException("Credenciales inválidas");
         }
 
+        // ✅ Verificar si el email está verificado
+        if (!user.isVerified()) {
+            throw new RuntimeException("Debes verificar tu email antes de iniciar sesión");
+        }
+
         return user;
     }
 }

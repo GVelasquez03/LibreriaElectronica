@@ -9,6 +9,8 @@ public interface UsuarioRepositorio extends JpaRepository<Usuario, Long> {
     // Encontrar usuario por email
     Optional<Usuario> findByEmail(String email);
 
-    // Existe email user
     boolean existsByEmail(String username);
+
+    // Verificar el token
+    Optional<Usuario> findByVerificationToken(String verificationToken);
 }
