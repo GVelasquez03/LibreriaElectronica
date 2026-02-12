@@ -6,6 +6,7 @@ import Login from "../pages/login/login";
 import Home from "../pages/book/Home";
 import BookDetail from "../pages/book/BookDetail";
 import NotFound from "../pages/book/NotFound";
+import Register from "../pages/login/register";
 
 // ✅ Admin Layout y páginas
 import AdminLayout from "../layouts/AdminLayout";
@@ -13,6 +14,7 @@ import AdminHome from "../pages/admin/AdminHome";
 import AdminAdd from "../pages/admin/AdminAdd";
 import AdminEdit from "../pages/admin/AdminEdit";
 import AdminCategories from "../pages/admin/AdminCategories";
+import VerifyEmail from "../pages/auth/VerifyEmail";
 
 export default function AppRoutes() {
   return (
@@ -22,6 +24,9 @@ export default function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/book/:id" element={<BookDetail />} />
       <Route path="/login" element={<Login />} />
+      <Route path="user/Register" element={<Register/>} />
+      <Route path="/verify" element={<VerifyEmail />} />
+
 
       {/* RUTAS PRIVADAS ADMIN */}
       <Route

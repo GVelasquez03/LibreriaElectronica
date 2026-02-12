@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import bgImage from "../../assets/book.avif"
 import { login } from "../../services/authApi";
@@ -48,7 +48,19 @@ export default function Login() {
                 }
             }, 1600);
 
-        } catch {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+
+            if (error.response?.data?.message?.includes("verificar tu email")) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Debes verificar tu email antes de iniciar sesión",
+                    background: "#49464b",
+                    color: "#fffefc",
+                    confirmButtonColor: "#ef4444",
+                });
+            }
             Swal.fire({
                 icon: "error",
                 title: "Error",
@@ -68,13 +80,10 @@ export default function Login() {
             style={{ backgroundImage: `url(${bgImage})` }}
         >
             {/* OVERLAY */}
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+            <div className="absolute inset-0 backdrop-blur-sm" />
 
             {/* CARD */}
             <div className="relative z-10 w-full max-w-md bg-zinc-900/90 border border-[#735CDB]/30 rounded-2xl p-8 shadow-[0_0_45px_#735CDB80]">
-                <h1 className="text-3xl font-bold text-[#8b7cf0] text-center mb-6">
-                    Iniciar sesión
-                </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
@@ -102,9 +111,22 @@ export default function Login() {
                         disabled={loading}
                         className="w-full py-2 rounded-lg bg-gradient-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold transition shadow-[0_0_30px_#735CDB99] disabled:opacity-50"
                     >
-                        {loading ? "Ingresando..." : "Entrar"}
+                        {loading ? "Ingresando..." : "Iniciar Sesion"}
                     </button>
                 </form>
+
+                {/* Enlace a login */}
+                <div className="mt-6 pt-6 border-t border-white/10 text-center">
+                    <p className="text-gray-400 text-sm">
+                        ¿olvidaste tu contraseña?{" | "}
+                        <Link
+                            to="/user/register"
+                            className="text-[#8b7cf0] hover:text-[#735CDB] font-medium transition"
+                        >
+                            Registrate aquí
+                        </Link>
+                    </p>
+                </div>
             </div>
         </div>
     );
