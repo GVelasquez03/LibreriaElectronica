@@ -151,7 +151,10 @@ export default function Navbar() {
             Nuevo libro
           </span>
           <span className="nav-link" onClick={() => navigate("/admin/categories")}>
-            Nuevo Categoria
+            Nueva categoria
+          </span>
+          <span className="nav-link" onClick={() => navigate("/admin/metodos-pago")}>
+            Metodos de pago
           </span>
         </div>
       )}

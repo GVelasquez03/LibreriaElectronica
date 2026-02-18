@@ -15,6 +15,7 @@ import AdminAdd from "../pages/admin/AdminAdd";
 import AdminEdit from "../pages/admin/AdminEdit";
 import AdminCategories from "../pages/admin/AdminCategories";
 import VerifyEmail from "../pages/auth/VerifyEmail";
+import AdminMetodoPago from "../pages/admin/AdminMpago";
 
 export default function AppRoutes() {
   return (
@@ -41,7 +42,7 @@ export default function AppRoutes() {
         <Route path="add" element={<AdminAdd />} />   {/* /admin/add */}
         <Route path="edit/:id" element={<AdminEdit />} /> {/* /admin/edit/1 */}
         <Route path="categories" element={<AdminCategories />} />
-
+        <Route path="metodos-pago" element={<AdminMetodoPago />} />
       </Route>
 
      
