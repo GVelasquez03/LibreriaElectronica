@@ -1,9 +1,6 @@
 package com.ebook.ebookapi.categoria;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-
-
 
 @Service
 public class CategoryService implements ICategoryService{
@@ -23,12 +20,14 @@ public class CategoryService implements ICategoryService{
 
     // Guardar categoria
     @Override
-    public void guardarCategoria(DtoCategoria dto) {
+    public void guardarCategoria(DtoCategoria dto){
         // Verificar si la categoria existe
         if (categoryRepository.existsByNameIgnoreCase(dto.getName())) {
             throw new RuntimeException("La categoría ya existe");
         }
-        categoryRepository.save(new Category(dto.getName()));
+        // Registro usando Mappers
+        Category category =  CategoryMapper.toEntity(dto);
+        categoryRepository.save(category);
     }
 
     // Editar categoria
@@ -36,10 +35,8 @@ public class CategoryService implements ICategoryService{
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
 
-        System.out.println(category);
         category.setName(data.getName());
         return categoryRepository.save(category);
-
     }
 
     // eliminar categoria
@@ -50,8 +47,6 @@ public class CategoryService implements ICategoryService{
         if (!category.getBooks().isEmpty()) {
             throw new RuntimeException("No se puede eliminar una categoría con libros");
         }
-
         categoryRepository.delete(category);
     }
-
 }

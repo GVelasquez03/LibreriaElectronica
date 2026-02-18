@@ -1,6 +1,7 @@
 package com.ebook.ebookapi.user.service;
 
 import com.ebook.ebookapi.user.dtos.RegisterRequest;
+import com.ebook.ebookapi.user.mapper.UserMapper;
 import com.ebook.ebookapi.user.modelo.Role;
 import com.ebook.ebookapi.user.modelo.Usuario;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -28,19 +29,11 @@ public class UserService implements IUserService {
         if (userRepositorio.existsByEmail(request.getEmail())) {
             throw new RuntimeException("El email: "+ request.getEmail()+" ya esta registrado");
         }
-        Usuario user = new Usuario();
-        user.setEmail(request.getEmail());
-        user.setNombreCompleto(request.getNombreCompleto());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setFechaNacimiento(request.getFechaNacimiento());
-        user.setPais(request.getPais());
-        user.setRole(Role.USER);
-        user.setVerified(false);
+        Usuario user = UserMapper.toEntity(request);
 
-        // ✅ 3. USAR EL TOKEN QUE ENVÍA EL FRONTEND
+        // Usar el token que enviá el frontend
         user.setVerificationToken(request.getVerificationToken());
         user.setVerificationExpires(LocalDateTime.now().plusHours(24));
-        user.setVerified(false);
 
         return userRepositorio.save(user);
     }

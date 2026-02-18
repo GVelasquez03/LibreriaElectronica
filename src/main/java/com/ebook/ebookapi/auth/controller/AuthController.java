@@ -55,15 +55,11 @@ public class AuthController {
     public ResponseEntity<?> verifyEmail(@RequestParam String token) {
         try {
 
-            System.out.println("🔍 TOKEN RECIBIDO: " + token);
+            System.out.println("🔍 TOKEN RECIBIDO: " + token); // para depurar
 
             // Buscar usuario por token
             Usuario user = userService.findByVerificationToken(token);
-             // ← VER ESTO
-
-            System.out.println("✅ USUARIO ENCONTRADO: " + user.getEmail());
-            System.out.println("📅 Expira: " + user.getVerificationExpires());
-            System.out.println("⏰ Ahora: " + LocalDateTime.now());
+            System.out.println("✅ USUARIO ENCONTRADO: " + user.getEmail()); // para depurar
 
             // Verificar no expirado
             if (user.getVerificationExpires().isBefore(LocalDateTime.now())) {
