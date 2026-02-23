@@ -1,8 +1,9 @@
 const API_URL = "http://localhost:8080";
-import type { LoginResponse, RegisterData} from "../types/registerData";
+import type { LoginResponse, RegisterData, UserInfoToken} from "../types/registerData";
 import api from "./api";
+import { getToken } from "./authService";
 
-// Verificar el logout
+// VERIFICAR EL INICIO DE SESION 
 export async function login(email: string, password: string): Promise<LoginResponse> {
     const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
@@ -17,13 +18,13 @@ export async function login(email: string, password: string): Promise<LoginRespo
     return response.json();
 }
 
-// Servicio para el registro del Usuario
+// SERVICIO PARA REGISTRAR USUARIOS 
 export const register = async (data: RegisterData) => {
     const response = await api.post("/user/register", data);
     return response.data;
 };
 
-// Servicio para verificar el email con token
+// SERVICIO PARA VERIFICAR EL EMAIL CON EL TOKEN 
 export const verifyEmailToken = async (token: string) => {
     try {
         const response = await api.get(`/api/auth/verify?token=${token}`);
@@ -34,7 +35,7 @@ export const verifyEmailToken = async (token: string) => {
     }
 };
 
-// NUEVO: Reenviar email de verificación
+// REENVIAR EMAIL DE VERIFICACION (no usado todavia)
 export const resendVerificationEmail = async (email: string) => {
     try {
         const response = await api.post("/auth/resend-verification", { email });
@@ -42,5 +43,26 @@ export const resendVerificationEmail = async (email: string) => {
     } catch (error) {
         console.error("Error reenviando verificación:", error);
         throw error;
+    }
+};
+
+// OBTENER DATOS DEL USUARIO ATRAVES DEL TOKEN 
+export const getCurrentUser = (): UserInfoToken | null => {
+    try {
+        const token = getToken();
+        if (!token) return null;
+
+        // Decodificar el token JWT (parte del payload)
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(window.atob(base64));
+
+        return {
+            email: payload.email || payload.sub,
+            role: payload.role || 'USER'
+        };
+    } catch (error) {
+        console.error('Error obteniendo usuario:', error);
+        return null;
     }
 };

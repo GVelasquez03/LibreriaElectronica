@@ -3,8 +3,12 @@ import { useParams, useNavigate } from "react-router-dom";
 import type { BookRequest } from "../../types/book";
 import { getBookById } from "../../services/bookService";
 import { getAllCategories } from "../../services/CategoryService";
-import { ArrowLeft, BookOpen, User, DollarSign, Tag, ShoppingCart, Lock, EyeOff, Maximize2 } from "lucide-react";
+import { ArrowLeft, BookOpen, User, DollarSign, Tag, ShoppingCart, Lock, Maximize2 } from "lucide-react";
 import type { Categoria } from "../../types/categoria";
+import Swal from "sweetalert2";
+import { createOrden, getUsuarioByEmail } from "../../services/ordenService";
+import { getCurrentUser} from '../../services/authApi';
+import { isAuthenticated } from "../../services/authService";
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -36,30 +40,28 @@ export default function BookDetail() {
     loadData();
   }, [id]);
 
-  // Obtener nombre de la categoría
+  // OBTENER NOMBRE DE LA CATEGORIA
   const getCategoriaName = () => {
     if (!bookRequest) return "Sin categoría";
     const category = categories.find(c => c.id === bookRequest.category.id);
     return category?.name || `ID: ${bookRequest.category.name}`;
   };
 
-  // URL del PDF con parámetros para vista previa restringida
+  // URL DEL PDF CON PARAMETROS PARA VISTA PREVIA RESTRINGIDA 
   const getRestrictedPdfUrl = () => {
     if (!bookRequest?.pdfFilename) return "";
-
     // Parámetros que ocultan TODOS los controles
     return `http://localhost:8080/api/books/pdf/preview/${bookRequest.pdfFilename}#toolbar=0&navpanes=0&scrollbar=0&statusbar=0&messages=0&view=FitH&page=1`;
   };
 
-  // Función para abrir PDF en pantalla completa (nueva pestaña)
+  // FUNCION PARA ABRIR EL PDF EN PANTALLA COMPLETA
   const openFullscreenPdf = () => {
     if (!bookRequest?.pdfFilename) return;
-
     const fullscreenUrl = `http://localhost:8080/api/books/pdf/preview/${bookRequest.pdfFilename}#toolbar=0&navpanes=0`;
     window.open(fullscreenUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // Bloquear atajos de teclado
+  // BLOQUEAR ATAJOS DEL TECLADO
   useEffect(() => {
     const preventKeyEvents = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) &&
@@ -73,6 +75,7 @@ export default function BookDetail() {
     return () => document.removeEventListener('keydown', preventKeyEvents);
   }, []);
 
+  // ESTADO CARGANDO....
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
@@ -84,6 +87,7 @@ export default function BookDetail() {
     );
   }
 
+  // SI EL LIBRO NO EXISTE
   if (!bookRequest) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
@@ -100,6 +104,61 @@ export default function BookDetail() {
     );
   }
 
+  // NUEVA FUNCIONALIDAD PARA IMPLEMENTAR ORDEN DE COMPRA DE UN LIBRO
+  const handleComprar = async () => {
+    try {
+
+      if (!isAuthenticated()) {
+        Swal.fire({
+          icon: "warning",
+          title: "Inicia sesión",
+          text: "Debes iniciar sesión para comprar",
+          confirmButtonColor: "#735CDB",
+          background: "#1f2937",
+          color: "#fff",
+        }).then(() => navigate("/login"));
+        return;
+      }
+
+      // OBTENER DATOS DEL USUARIO ACTUAL ATRAVES DEL TOKEN
+      const usuario = getCurrentUser(); 
+    
+      // OBTENER DATOS COMPLETOS DEL USUARIO PARA LA ORDEN
+      if(usuario?.email){
+        const userData = await getUsuarioByEmail(usuario.email);
+
+        console.log("Datos del Usuario:", userData);
+
+        // CREAR ORDEN
+          const ordenData = {
+            idUsuario: userData.id,
+            idLibro: bookRequest.id,
+            idMetodoPago: 1, // Por defecto o seleccionado
+            montoTotal: bookRequest.price
+          };
+          console.log("orden Data:", ordenData);
+          await createOrden(ordenData);
+
+          Swal.fire({
+          icon: "success",
+          title: "¡Compra realizada!",
+          text: "Tu orden ha sido creada exitosamente",
+          timer: 2000,
+          showConfirmButton: false,
+          });
+      }else{
+        console.log("El email no existe o no ha iniciado sesion");
+      }
+
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo procesar la compra:"+ error,
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
@@ -113,6 +172,7 @@ export default function BookDetail() {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
           {/* Columna 1: Portada y acciones */}
           <div className="lg:col-span-2">
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 shadow-2xl">
@@ -147,7 +207,10 @@ export default function BookDetail() {
                           ${bookRequest.price.toFixed(2)}
                         </span>
                       </div>
-                      <button className="px-5 ml-2 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition font-semibold shadow-lg shadow-orange-500/20 flex items-center gap-2">
+                      <button onClick={handleComprar} className="px-5 ml-2 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white
+                       rounded-lg hover:from-orange-600 hover:to-orange-700 transition font-semibold shadow-lg
+                        shadow-orange-500/20 flex items-center gap-2" >
+                          
                         <ShoppingCart className="w-5 h-5" />
                         Comprar
                       </button>
@@ -330,18 +393,6 @@ export default function BookDetail() {
                       <p className="text-gray-400 text-xs">Acceso</p>
                       <p className="text-yellow-400 font-bold">Limitado</p>
                     </div>
-                  </div>
-
-                  {/* Llamado a la acción */}
-                  <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-5 border border-purple-700/50">
-                    <h4 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-                      <EyeOff className="w-5 h-5" />
-                      ¿Quieres leer más?
-                    </h4>
-                    <button className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition font-semibold shadow-lg shadow-purple-500/30 flex items-center justify-center gap-2">
-                      <ShoppingCart className="w-5 h-5" />
-                      Comprar para desbloquear PDF completo
-                    </button>
                   </div>
                 </div>
               ) : (

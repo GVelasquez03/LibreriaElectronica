@@ -19,6 +19,7 @@ export function getRole() {
     return localStorage.getItem(ROLE_KEY);
 }
 
+// VERIFICAR SI HAY SESION ACTIVA 
 export function isAuthenticated() {
     return !!getToken();
 }

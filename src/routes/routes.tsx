@@ -8,7 +8,7 @@ import BookDetail from "../pages/book/BookDetail";
 import NotFound from "../pages/book/NotFound";
 import Register from "../pages/login/register";
 
-// ✅ Admin Layout y páginas
+// RUTAS PARA EL ADMINISTRADOR
 import AdminLayout from "../layouts/AdminLayout";
 import AdminHome from "../pages/admin/AdminHome";
 import AdminAdd from "../pages/admin/AdminAdd";
@@ -16,6 +16,8 @@ import AdminEdit from "../pages/admin/AdminEdit";
 import AdminCategories from "../pages/admin/AdminCategories";
 import VerifyEmail from "../pages/auth/VerifyEmail";
 import AdminMetodoPago from "../pages/admin/AdminMpago";
+import AdminOrdenes from "../pages/admin/AdminOrdenes";
+import AdminOrdenDetalle from "../pages/admin/AdminOrdenDetalle";
 
 export default function AppRoutes() {
   return (
@@ -43,6 +45,8 @@ export default function AppRoutes() {
         <Route path="edit/:id" element={<AdminEdit />} /> {/* /admin/edit/1 */}
         <Route path="categories" element={<AdminCategories />} />
         <Route path="metodos-pago" element={<AdminMetodoPago />} />
+        <Route path="ordenes" element={<AdminOrdenes />} />
+        <Route path="ordenes/:id" element={<AdminOrdenDetalle />} />
       </Route>
 
      

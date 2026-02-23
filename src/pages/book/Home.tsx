@@ -51,7 +51,6 @@ export default function Home() {
         for (const cat of categories) {
           try {
             const books = await getBooksByCategory(cat);
-            console.log("Categoría:", cat, "→ libros:", books);
             data[cat] = books;
           } catch (error) {
             console.error("Error cargando", cat, error);

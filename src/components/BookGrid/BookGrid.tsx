@@ -8,18 +8,13 @@ interface Props {
   onDelete?: (id: number) => void;
 }
 
-export default function BookGrid({
-  books,
-  isAdmin = false,
-  onEdit,
-  onDelete,
-}: Props) {
+export default function BookGrid({ books,isAdmin = false,onEdit,onDelete,}: Props) {
   return (
     <div
       style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-        gap: "1rem",
+        gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+        gap: "2rem",
         padding: "2rem",
       }}
     >
