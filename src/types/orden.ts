@@ -11,6 +11,7 @@ export interface Orden {
     idLibro: number;
     tituloLibro?: string;
     autorLibro: string;
+    pdfFileName : string;
 
     idMetodoPago: number;
     nombreMetodoPago?: string;

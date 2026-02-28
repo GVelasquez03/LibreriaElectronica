@@ -4,7 +4,7 @@ import { isAuthenticated, logout } from "../../services/authService";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 import { getAllCategories } from "../../services/CategoryService";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Search } from "lucide-react";
 
 export default function Navbar() {
   const location = useLocation();
@@ -12,8 +12,11 @@ export default function Navbar() {
   const isAdmin = location.pathname.startsWith("/admin");
   const [searchParams] = useSearchParams();
   const selectedCategory = searchParams.get("category") ?? "";
+  const searchQuery = searchParams.get("search") ?? "";
+
   const [categories, setCategories] = useState<string[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(searchQuery);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -23,6 +26,11 @@ export default function Navbar() {
     };
     fetchCategories();
   }, []);
+
+  // Sincronizar searchTerm cuando cambia la URL
+  useEffect(() => {
+    setSearchTerm(searchQuery);
+  }, [searchQuery]);
 
   const handleLogout = async () => {
     const result = await Swal.fire({
@@ -52,10 +60,23 @@ export default function Navbar() {
 
   const handleCategoryChange = (value: string) => {
     setMobileMenuOpen(false);
-    if (value === "") {
-      navigate("/");
-    } else {
-      navigate(`/?category=${value}`);
+    const params = new URLSearchParams();
+    if (value) params.set("category", value);
+    if (searchTerm) params.set("search", searchTerm);
+    navigate(isAdmin ? `/admin?${params.toString()}` : `/?${params.toString()}`);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const params = new URLSearchParams();
+    if (selectedCategory) params.set("category", selectedCategory);
+    if (searchTerm.trim()) params.set("search", searchTerm.trim());
+    navigate(isAdmin ? `/admin?${params.toString()}` : `/?${params.toString()}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch(e);
     }
   };
 
@@ -83,27 +104,21 @@ export default function Navbar() {
           {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
 
+        
+
         {/* Navegación desktop */}
-        <div className="hidden md:flex items-center px-8  gap-6 flex-1 justify-left">
+        <div className="hidden md:flex items-center gap-6">
           {!isAdmin ? (
+            // Vista usuario normal
             <>
               <span
-                className="nav-link cursor-pointer px-4 py-2  transition-all duration-300 hover:bg-[#735CDB]/20 hover:scale-105"
+                className="nav-link cursor-pointer px-4 py-2 transition-all duration-300 hover:bg-[#735CDB]/20 hover:scale-105"
                 onClick={() => navigate("/")}
               >
                 Inicio
               </span>
-
-
               <span
-                className="nav-link cursor-pointer px-4 py-2 transition-all duration-300 hover:bg-[#735CDB]/20  hover:scale-105"
-                onClick={() => { }}
-              >
-                Popular
-              </span>
-
-              <span
-                className="nav-link cursor-pointer px-4 py-2 transition-all duration-300 hover:bg-[#735CDB]/20  hover:scale-105"
+                className="nav-link cursor-pointer px-4 py-2 transition-all duration-300 hover:bg-[#735CDB]/20 hover:scale-105"
                 onClick={() => navigate("/mis-compras")}
               >
                 Mis compras
@@ -113,7 +128,7 @@ export default function Navbar() {
                 <select
                   value={selectedCategory}
                   onChange={(e) => handleCategoryChange(e.target.value)}
-                  className="bg-transparent   px-4 py-2 text-white cursor-pointer hover:border-[#735CDB] transition-all duration-300 hover:bg-[735CDB]/50 appearance-none pr-10"
+                  className="bg-transparent px-4 py-2 text-white cursor-pointer hover:border-[#735CDB] transition-all duration-300 hover:bg-[#735CDB]/20 appearance-none pr-10"
                 >
                   <option value="" className="bg-gray-800">Categorías</option>
                   {categories.map((cat) => (
@@ -123,12 +138,12 @@ export default function Navbar() {
                   ))}
                 </select>
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400 group-hover:text-[#735CDB] transition-colors">
-                  ▼
+                  
                 </div>
               </div>
-
             </>
           ) : (
+            // Vista admin
             <>
               <span
                 className="nav-link cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#735CDB]/20 hover:shadow-lg hover:shadow-[#735CDB]/30 hover:scale-105"
@@ -148,22 +163,51 @@ export default function Navbar() {
               >
                 Nueva categoría
               </span>
-
               <span
                 className="nav-link cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#735CDB]/20 hover:shadow-lg hover:shadow-[#735CDB]/30 hover:scale-105"
                 onClick={() => navigate("/admin/metodos-pago")}
               >
                 Métodos de pago
               </span>
-
-             <span
-               className="nav-link cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#735CDB]/20 hover:shadow-lg hover:shadow-[#735CDB]/30 hover:scale-105"
-               onClick={() => navigate("/admin/ordenes")}
+              <span
+                className="nav-link cursor-pointer px-4 py-2 rounded-lg transition-all duration-300 hover:bg-[#735CDB]/20 hover:shadow-lg hover:shadow-[#735CDB]/30 hover:scale-105"
+                onClick={() => navigate("/admin/ordenes")}
               >
-               Gestion de Ordenes
-             </span>
+                Gestión de Órdenes
+              </span>
             </>
           )}
+        </div>
+
+        {/* Buscador desktop (visible en todas las vistas) */}
+        <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
+          <form onSubmit={handleSearch} className="w-full">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Buscar libros por título o autor..."
+                className="w-full px-4 py-2 pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#735CDB] focus:border-transparent"
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchTerm("");
+                    const params = new URLSearchParams();
+                    if (selectedCategory) params.set("category", selectedCategory);
+                    navigate(isAdmin ? `/admin?${params.toString()}` : `/?${params.toString()}`);
+                  }}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+          </form>
         </div>
 
         {/* Botón cerrar sesión desktop */}
@@ -181,7 +225,22 @@ export default function Navbar() {
       {mobileMenuOpen && (
         <div className="md:hidden bg-[#181d27] border-t border-gray-700 py-4 px-4">
           <div className="flex flex-col gap-3">
+            {/* Buscador móvil */}
+            <form onSubmit={handleSearch} className="w-full mb-2">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar libros..."
+                  className="w-full px-4 py-2 pl-10 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              </div>
+            </form>
+
             {!isAdmin ? (
+              // Menú móvil usuario
               <>
                 <span
                   className="nav-link cursor-pointer py-2"
@@ -191,6 +250,15 @@ export default function Navbar() {
                   }}
                 >
                   Inicio
+                </span>
+                <span
+                  className="nav-link cursor-pointer py-2"
+                  onClick={() => {
+                    navigate("/mis-compras");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Mis compras
                 </span>
                 <select
                   value={selectedCategory}
@@ -202,14 +270,9 @@ export default function Navbar() {
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
-                <span
-                  className="nav-link cursor-pointer py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Popular
-                </span>
               </>
             ) : (
+              // Menú móvil admin
               <>
                 <span
                   className="nav-link cursor-pointer py-2"
@@ -247,8 +310,18 @@ export default function Navbar() {
                 >
                   Métodos de pago
                 </span>
+                <span
+                  className="nav-link cursor-pointer py-2"
+                  onClick={() => {
+                    navigate("/admin/ordenes");
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  Gestión de Órdenes
+                </span>
               </>
             )}
+
             {isAuthenticated() && (
               <button
                 onClick={() => {

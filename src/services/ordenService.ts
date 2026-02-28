@@ -14,7 +14,7 @@ export const getOrdenById = async (id: number): Promise<Orden> => {
     return response.data;
 };
 
-// OBTENER ORDENES POR USUARIOS //////////////////////////////////////////////////////
+// OBTENER ORDENES POR ID USUARIOS 
 export const getOrdenesByUsuario = async (idUsuario: number): Promise<Orden[]> => {
     try{
         const response = await api.get(`/api/ordenes/usuario/${idUsuario}`);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { v4 as uuidv4 } from 'uuid';
 import {ArrowLeft,ShoppingBag,RefreshCw,Eye,CheckCircle,XCircle,Clock,Search,Filter} from "lucide-react";
 
 import type { Orden } from "../../types/orden";
@@ -75,6 +76,10 @@ export default function AdminOrdenes() {
                 });
             }
         }
+    };
+    
+    const generarReferencia = () => {
+        return uuidv4().substring(0, 8).toUpperCase();
     };
 
     const handleVerDetalle = (id: number) => {
@@ -254,7 +259,7 @@ export default function AdminOrdenes() {
                                                     <div>
                                                         <p className="text-gray-400 text-xs">Referencia</p>
                                                         <p className="text-white text-shadow-sm font-medium">
-                                                            {Math.random().toFixed(8)}
+                                                            {generarReferencia()}
                                                         </p>
                                                     </div>
                                                 </div>

@@ -207,7 +207,7 @@ export default function RealizarPago() {
                                 <DollarSign className="w-5 h-5 text-orange-400" />
                                 <h3 className="text-lg font-semibold text-white">Total a pagar</h3>
                             </div>
-                            <p className="text-3xl font-bold text-white ml-8">
+                            <p className="text-md font-bold text-white ml-8">
                                 ${libro.price.toFixed(2)}
                             </p>
                         </div>

@@ -180,7 +180,7 @@ export default function MisCompras() {
                                             {/* Botón ver detalle */}
                                             <button
                                                 onClick={() => verDetalleOrden(orden.id)}
-                                                className="px-4 py-2 bg-purple-900/30 text-purple-400 hover:bg-purple-900/50 rounded-lg transition flex items-center gap-2 "
+                                                className="px-4 py-2 cursor-pointer bg-purple-800/60 text-white hover:bg-purple-900/50 rounded-lg transition flex items-center gap-2 "
                                             >
                                                 <Eye className="w-4 h-4" />
                                                 Ver detalle

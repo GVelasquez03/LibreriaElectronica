@@ -1,4 +1,5 @@
 import type { Book, BookRequest, CreateBookDTO } from "../types/book";
+import api from "./api";
 
 const API_URL = "http://localhost:8080/api/books";
 
@@ -88,7 +89,7 @@ export const createBook = async (bookData: CreateBookDTO, pdfFile?: File) => {
 // Función para descargar PDF
 export const downloadBookPdf = async (filename: string) => {
     try {
-        const response = await fetch(`${API_URL}/pdf/${filename}`);
+        const response = await fetch(`${API_URL}/pdf/download/${filename}`);
 
         if (!response.ok) {
             throw new Error(`Error ${response.status}`);
@@ -126,4 +127,22 @@ export const updateBook = async (id: number, book: Partial<CreateBookDTO>): Prom
 
     if (!res.ok) throw new Error("Error al actualizar");
     return res.json();
+};
+
+
+// Encontraar libro para el Buscador
+export const searchBooks = async (query: string): Promise<Book[]> => {
+    try {
+        const response = await api.get(`/api/books/search?q=${encodeURIComponent(query)}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error buscando libros:", error);
+        // Fallback: filtrar localmente si el endpoint no existe
+        const allBooks = await getAllBooks();
+        const lowerQuery = query.toLowerCase();
+        return allBooks.filter(book =>
+            book.title.toLowerCase().includes(lowerQuery) ||
+            book.author.toLowerCase().includes(lowerQuery)
+        );
+    }
 };

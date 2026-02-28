@@ -1,13 +1,14 @@
 // src/pages/MiCompraDetalle.tsx
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { downloadBookPdf } from "../../services/bookService";
 import Swal from "sweetalert2";
 import {
     ArrowLeft, ShoppingBag, User, BookOpen, DollarSign, Calendar, CheckCircle, XCircle, Clock, Download
 } from "lucide-react";
 
 import { getOrdenById } from "../../services/ordenService";
-import { getCurrentUser} from "../../services/authApi";
+import { getCurrentUser } from "../../services/authApi";
 import type { Orden } from "../../types/orden";
 
 export default function MiCompraDetalle() {
@@ -15,6 +16,7 @@ export default function MiCompraDetalle() {
     const navigate = useNavigate();
     const [orden, setOrden] = useState<Orden | null>(null);
     const [loading, setLoading] = useState(true);
+    const [descargando, setDescargando] = useState(false);
     const [, setUsuarioId] = useState<number | null>(null);
 
     useEffect(() => {
@@ -71,15 +73,63 @@ export default function MiCompraDetalle() {
         }
     };
 
-    const handleDescargarPDF = () => {
-        // Aquí implementarías la descarga del PDF
-        Swal.fire({
-            icon: "info",
-            title: "Descarga de PDF",
-            text: "Función próximamente disponible",
-            background: "#1f2937",
-            color: "#fff",
-        });
+    // HANDLE PARA DESCARGAR EL PDF UNA VEZ APROBADO
+    const handleDescargarPDF = async () => {
+        try {
+            setDescargando(true);
+
+            // VERIFICAR SI EL LIBRO TIENE PDF
+            if (!orden?.pdfFileName) {
+                Swal.fire({
+                    icon: "info",
+                    title: "Sin PDF",
+                    text: "Este libro no tiene versión digital disponible",
+                    background: "#1f2937",
+                    color: "#fff",
+                    confirmButtonColor: "#735CDB",
+                });
+                return;
+            }
+
+            // VERIFIRICAR EL ESTADO DE LA ORDEN
+            if (orden.estado !== 'APROBADO') {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Pago pendiente",
+                    text: "El PDF estará disponible cuando el pago sea aprobado",
+                    background: "#1f2937",
+                    color: "#fff",
+                    confirmButtonColor: "#735CDB",
+                });
+                return;
+            }
+
+            // Descargar PDF
+            await downloadBookPdf(orden.pdfFileName);
+
+            Swal.fire({
+                icon: "success",
+                title: "Descarga iniciada",
+                text: "El PDF se está descargando",
+                timer: 2000,
+                showConfirmButton: false,
+                background: "#1f2937",
+                color: "#fff",
+            });
+
+        } catch (error) {
+            console.error("Error descargando:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "No se pudo descargar el PDF",
+                background: "#1f2937",
+                color: "#fff",
+                confirmButtonColor: "#ef4444",
+            });
+        } finally {
+            setDescargando(false);
+        }
     };
 
     if (loading) {
@@ -139,7 +189,7 @@ export default function MiCompraDetalle() {
                                     <BookOpen className="w-5 h-5 text-purple-400" />
                                     Libro adquirido
                                 </h3>
-                            
+
                                 {orden.tituloLibro && (
                                     <>
                                         <p className="text-white font-medium mt-2">{orden.tituloLibro}</p>
@@ -179,21 +229,48 @@ export default function MiCompraDetalle() {
                             </div>
                         </div>
 
-                        {/* Botón de descarga si está aprobado */}
-                        {orden.estado === 'APROBADO' && (
-                            <div className="mt-8 pt-6 border-t border-gray-700">
+                        {/* Sección de descarga */}
+                        <div className="mt-8 pt-6 border-t border-gray-700">
+                            {orden?.pdfFileName ? (
                                 <button
                                     onClick={handleDescargarPDF}
-                                    className="w-full px-6 py-4 bg-linear-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition font-medium flex items-center justify-center gap-2"
+                                    disabled={descargando || orden.estado !== 'APROBADO'}
+                                    className={`w-full px-6 py-4 rounded-lg font-medium flex items-center justify-center gap-2 transition
+                                     ${orden.estado === 'APROBADO'
+                                            ? 'bg-linear-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
+                                            : 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                                        }`}
                                 >
-                                    <Download className="w-5 h-5" />
-                                    Descargar PDF del libro
+                                    {descargando ? (
+                                        <>
+                                            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
+                                            Descargando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Download className="w-5 h-5" />
+                                            {orden.estado === 'APROBADO'
+                                                ? 'Descargar PDF del libro'
+                                                : 'PDF disponible cuando se apruebe el pago'}
+                                        </>
+                                    )}
                                 </button>
+                            ) : (
+                                <div className="bg-gray-700/30 rounded-xl p-6 text-center border border-gray-600">
+                                    <BookOpen className="w-12 h-12 text-gray-500 mx-auto mb-3" />
+                                    <p className="text-gray-300">Este libro no incluye versión digital</p>
+                                    <p className="text-gray-500 text-sm mt-2">
+                                        Solo disponible en formato físico
+                                    </p>
+                                </div>
+                            )}
+
+                            {orden?.pdfFileName && orden.estado !== 'APROBADO' && (
                                 <p className="text-gray-500 text-xs text-center mt-3">
-                                    El libro estará disponible para descargar una vez que el pago sea aprobado
+                                    ⏱️ El libro estará disponible para descargar una vez que el pago sea aprobado
                                 </p>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
