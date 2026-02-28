@@ -22,6 +22,7 @@ export interface UserInfoToken {
 //NUEVO:Interfaz para usuario actual
 export interface UserOrden {
     id: number;
-    nombreCompleto?: string;
+    nombreCompleto: string;
     pais: string;
 }
+

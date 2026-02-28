@@ -1,4 +1,5 @@
 const API_URL = "http://localhost:8080";
+import type { Orden } from "../types/orden";
 import type { LoginResponse, RegisterData, UserInfoToken} from "../types/registerData";
 import api from "./api";
 import { getToken } from "./authService";
@@ -13,7 +14,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
         body: JSON.stringify({ email, password }),
     });
 
-    if (!response.ok) { throw new Error("Credenciales inválidas");}
+    if (!response.ok) { throw new Error("Credenciales inválidas"); }
 
     return response.json();
 }
@@ -64,5 +65,19 @@ export const getCurrentUser = (): UserInfoToken | null => {
     } catch (error) {
         console.error('Error obteniendo usuario:', error);
         return null;
+    }
+};
+
+
+// OBTENER LISTADO DE ORDENES DE UN USUARIO
+export const getOrdenesByEmail = async (email: string): Promise<Orden[]> => {
+    try {
+        // URL encode para manejar caracteres especiales en el email
+        const emailEncoded = encodeURIComponent(email);
+        const response = await api.get(`/api/ordenes/compras?email=${emailEncoded}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error obteniendo órdenes por email:", error);
+        throw error;
     }
 };

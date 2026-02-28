@@ -11,3 +11,12 @@ export interface MetodoPago {
     moneda: string;
     detalles: string;
 }
+
+export interface PagoInfo {
+    usuarioId: number;
+    usuarioNombre: string;
+    libroId: number;
+    libroTitulo: string;
+    libroPrecio: number;
+    metodoPagoId: number;
+}

@@ -5,16 +5,17 @@ import { getBookById } from "../../services/bookService";
 import { getAllCategories } from "../../services/CategoryService";
 import { ArrowLeft, BookOpen, User, DollarSign, Tag, ShoppingCart, Lock, Maximize2 } from "lucide-react";
 import type { Categoria } from "../../types/categoria";
-import Swal from "sweetalert2";
-import { createOrden, getUsuarioByEmail } from "../../services/ordenService";
-import { getCurrentUser} from '../../services/authApi';
-import { isAuthenticated } from "../../services/authService";
+//import Swal from "sweetalert2";
+//import { createOrden, getUsuarioByEmail } from "../../services/ordenService";
+//import { getCurrentUser } from '../../services/authApi';
+//import { isAuthenticated } from "../../services/authService";
 
 export default function BookDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [bookRequest, setBook] = useState<BookRequest | null>(null);
   const [categories, setCategories] = useState<Categoria[]>([]);
+  //const [comprando, setComprando] = useState(false);
   const [loading, setLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [, setPdfError] = useState(false);
@@ -78,7 +79,7 @@ export default function BookDetail() {
   // ESTADO CARGANDO....
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-gray-900 to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
           <p className="text-gray-300 text-lg">Cargando libro...</p>
@@ -90,12 +91,12 @@ export default function BookDetail() {
   // SI EL LIBRO NO EXISTE
   if (!bookRequest) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex items-center justify-center">
+      <div className="min-h-screen bg-linear-to-br from-gray-900 to-gray-800 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-white mb-4">Libro no encontrado</h2>
           <button
             onClick={() => navigate("/")}
-            className="px-6 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition"
+            className="px-6 py-2 bg-linear-to-br from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition"
           >
             Volver al inicio
           </button>
@@ -105,7 +106,10 @@ export default function BookDetail() {
   }
 
   // NUEVA FUNCIONALIDAD PARA IMPLEMENTAR ORDEN DE COMPRA DE UN LIBRO
-  const handleComprar = async () => {
+ /* const handleComprar = async () => {
+    if (comprando) return; // Evita doble click
+    setComprando(true);
+
     try {
 
       if (!isAuthenticated()) {
@@ -121,46 +125,57 @@ export default function BookDetail() {
       }
 
       // OBTENER DATOS DEL USUARIO ACTUAL ATRAVES DEL TOKEN
-      const usuario = getCurrentUser(); 
-    
-      // OBTENER DATOS COMPLETOS DEL USUARIO PARA LA ORDEN
-      if(usuario?.email){
-        const userData = await getUsuarioByEmail(usuario.email);
+      const usuario = getCurrentUser();
 
-        console.log("Datos del Usuario:", userData);
-
-        // CREAR ORDEN
-          const ordenData = {
-            idUsuario: userData.id,
-            idLibro: bookRequest.id,
-            idMetodoPago: 1, // Por defecto o seleccionado
-            montoTotal: bookRequest.price
-          };
-          console.log("orden Data:", ordenData);
-          await createOrden(ordenData);
-
-          Swal.fire({
-          icon: "success",
-          title: "¡Compra realizada!",
-          text: "Tu orden ha sido creada exitosamente",
-          timer: 2000,
-          showConfirmButton: false,
-          });
-      }else{
-        console.log("El email no existe o no ha iniciado sesion");
+      // MANEJAR ERROR ESPECIFICO
+      if (!usuario?.email) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo obtener la información del usuario",
+        });
+        return;
       }
+
+      // OBTENER DATOS COMPLETOS DEL USUARIO PARA LA ORDEN
+      const userData = await getUsuarioByEmail(usuario.email);
+
+      console.log("Datos del Usuario:", userData);
+
+      // validar que el usuario tenga id
+      if (!userData?.id) { throw new Error("Usuario no encontrado"); }
+
+      // CREAR ORDEN
+      const ordenData = {
+        idUsuario: userData.id,
+        idLibro: bookRequest.id,
+        idMetodoPago: 1, // Por defecto o seleccionado
+        montoTotal: bookRequest.price
+      };
+      console.log("orden Data:", ordenData);
+      await createOrden(ordenData);
+
+      Swal.fire({
+        icon: "success",
+        title: "¡Compra realizada!",
+        text: "Tu orden ha sido creada exitosamente",
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
     } catch (error) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: "No se pudo procesar la compra:"+ error,
+        text: "No se pudo procesar la compra:" + error,
       });
+    } finally {
+      setComprando(false);
     }
-  };
+  };*/
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4 md:p-8">
+    <div className="min-h-screen bg-linear-to-br from-gray-900 to-gray-800 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Botón de volver */}
         <button
@@ -180,7 +195,7 @@ export default function BookDetail() {
                 {/* Portada */}
                 <div className="flex flex-col items-center">
                   <div className="relative mb-6">
-                    <div className="w-72 h-96 md:w-80 md:h-[28rem] bg-gradient-to-br from-gray-700 to-gray-900 rounded-xl overflow-hidden shadow-2xl">
+                    <div className="w-72 h-96 md:w-80 md:h-112 bg-linear-to-br from-gray-700 to-gray-900 rounded-xl overflow-hidden shadow-2xl">
                       <img
                         src={bookRequest.cover}
                         alt={bookRequest.title}
@@ -190,7 +205,7 @@ export default function BookDetail() {
                     </div>
                     {bookRequest.pdfFilename && (
                       <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2">
-                        <span className="px-3 py-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm rounded-full border border-green-700/50 shadow-lg">
+                        <span className="px-3 py-1 bg-linear-to-br from-green-600 to-emerald-600 text-white text-sm rounded-full border border-green-700/50 shadow-lg">
                           DISPONIBLE
                         </span>
                       </div>
@@ -198,7 +213,7 @@ export default function BookDetail() {
                   </div>
 
                   {/* Apartado precio */}
-                  <div className="bg-gradient-to-br from-orange-900/20 to-orange-800/10 rounded-xl p-2 px-6 border border-orange-700/30 w-full max-w-xs">
+                  <div className="bg-linear-to-br from-orange-900/20 to-orange-800/10 rounded-xl p-3 mt-11 px-6 border border-orange-700/30 w-full max-w-xs">
                     <p className="text-gray-300 text-sm mb-2">Precio de venta</p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -207,10 +222,10 @@ export default function BookDetail() {
                           ${bookRequest.price.toFixed(2)}
                         </span>
                       </div>
-                      <button onClick={handleComprar} className="px-5 ml-2 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white
-                       rounded-lg hover:from-orange-600 hover:to-orange-700 transition font-semibold shadow-lg
-                        shadow-orange-500/20 flex items-center gap-2" >
-                          
+                      <button
+                        onClick={() => navigate("/realizar-pago", { state: { libro: bookRequest } })}
+                        className="px-5 ml-2 py-3 bg-linear-to-br from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition font-semibold shadow-lg shadow-orange-500/20 flex items-center gap-2"
+                      >
                         <ShoppingCart className="w-5 h-5" />
                         Comprar
                       </button>
@@ -254,30 +269,6 @@ export default function BookDetail() {
                       {bookRequest.description || "Este libro no tiene descripción disponible."}
                     </p>
                   </div>
-
-                  {/* Nota sobre acceso PDF */}
-                  {bookRequest.pdfFilename && (
-                    <div className="bg-gradient-to-br from-blue-900/20 to-indigo-900/20 rounded-xl p-6 border border-blue-700/30">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Lock className="w-5 h-5 text-blue-400" />
-                        <h4 className="text-lg font-semibold text-white">Acceso al contenido digital</h4>
-                      </div>
-                      <ul className="space-y-2 text-gray-300 text-sm">
-                        <li className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5"></div>
-                          <span>Vista previa gratuita de las primeras 2 páginas</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5"></div>
-                          <span>Acceso completo al PDF después de la compra</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5"></div>
-                          <span>Descarga ilimitada sin DRM</span>
-                        </li>
-                      </ul>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -287,7 +278,7 @@ export default function BookDetail() {
           <div className="lg:col-span-1">
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 shadow-2xl h-full">
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg">
+                <div className="p-2 bg-linear-to-br from-purple-600 to-pink-600 rounded-lg">
                   <BookOpen className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -302,7 +293,7 @@ export default function BookDetail() {
                   <div className="bg-gray-900 rounded-lg border-2 border-purple-700/50 overflow-hidden relative pdf-container">
 
                     {/* Iframe del PDF */}
-                    <div className="aspect-[3/4] relative">
+                    <div className="aspect-3/4 relative">
                       {/* Contenedor para ocultar bordes */}
                       <div className="absolute inset-0 overflow-hidden">
                         <iframe
@@ -349,7 +340,7 @@ export default function BookDetail() {
                       </button>
 
                       {/* Overlay de restricción visual */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-900 via-gray-900/90 to-transparent h-32 z-10 flex items-end justify-center p-4">
+                      <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-gray-900 via-gray-900/90 to-transparent h-32 z-10 flex items-end justify-center p-4">
                         <div className="text-center bg-gray-900/80 backdrop-blur-sm rounded-lg p-4 border border-purple-700/30">
                           <Lock className="w-6 h-6 text-purple-400 mx-auto mb-1" />
                           <p className="text-white text-sm font-medium">

@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRef } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import bgImage from "../../assets/book.avif";
 import { verifyEmailToken } from "../../services/authApi";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
@@ -52,9 +51,9 @@ export default function VerifyEmail() {
     return (
         <div
             className="min-h-screen flex items-center justify-center bg-cover bg-center px-4"
-            style={{ backgroundImage: `url(${bgImage})` }}
+            style={{ background: "black" }}
         >
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+            <div className="absolute inset-0 " />
 
             {/* Rendirizados segun el status */}
 
@@ -74,7 +73,7 @@ export default function VerifyEmail() {
                         </p>
 
                         <div className="mt-8 h-1 w-full bg-gray-800 rounded-full overflow-hidden">
-                            <div className="h-full w-2/3 bg-gradient-to-r from-[#735CDB] to-[#8f7fff] animate-pulse rounded-full"></div>
+                            <div className="h-full w-2/3 bg-linear-to-r from-[#735CDB] to-[#8f7fff] animate-pulse rounded-full"></div>
                         </div>
                     </>
                 )}
@@ -101,7 +100,7 @@ export default function VerifyEmail() {
 
                         <button
                             onClick={handleGoToLogin}
-                            className="w-full py-3 rounded-lg bg-gradient-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold hover:from-[#8f7fff] hover:to-[#735CDB] transition shadow-lg shadow-[#735CDB]/30"
+                            className="w-full py-3 rounded-lg bg-linear-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold hover:from-[#8f7fff] hover:to-[#735CDB] transition shadow-lg shadow-[#735CDB]/30"
                         >
                             Ir al inicio de sesión
                         </button>
@@ -140,7 +139,7 @@ export default function VerifyEmail() {
 
                             <Link
                                 to="/user/register"
-                                className="block w-full py-3 rounded-lg bg-gradient-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold hover:from-[#8f7fff] hover:to-[#735CDB] transition shadow-lg shadow-[#735CDB]/30"
+                                className="block w-full py-3 rounded-lg bg-linear-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold hover:from-[#8f7fff] hover:to-[#735CDB] transition shadow-lg shadow-[#735CDB]/30"
                             >
                                 Crear nueva cuenta
                             </Link>

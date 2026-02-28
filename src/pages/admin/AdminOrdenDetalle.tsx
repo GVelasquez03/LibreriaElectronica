@@ -1,18 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import {
-    ArrowLeft,
-    ShoppingBag,
-    User,
-    BookOpen,
-    DollarSign,
-    Calendar,
-    CheckCircle,
-    XCircle,
-    Clock,
-    Truck
-} from "lucide-react";
+import { ArrowLeft, ShoppingBag, User, BookOpen, DollarSign, Calendar, CheckCircle, XCircle, Clock} from "lucide-react";
 
 import { getOrdenById } from "../../services/ordenService";
 import type { Orden } from "../../types/orden";
@@ -49,14 +38,13 @@ export default function AdminOrdenDetalle() {
             case 'PENDIENTE': return <Clock className="w-6 h-6 text-yellow-400" />;
             case 'APROBADO': return <CheckCircle className="w-6 h-6 text-green-400" />;
             case 'RECHAZADO': return <XCircle className="w-6 h-6 text-red-400" />;
-            case 'ENTREGADO': return <Truck className="w-6 h-6 text-blue-400" />;
             default: return null;
         }
     };
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
             </div>
         );
@@ -65,7 +53,7 @@ export default function AdminOrdenDetalle() {
     if (!orden) return null;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
+        <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
             <div className="flex-1 p-4 md:p-6">
                 <div className="max-w-4xl mx-auto">
                     <button
@@ -78,7 +66,7 @@ export default function AdminOrdenDetalle() {
 
                     <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl p-6 border border-gray-700 shadow-xl">
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="p-3 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl">
+                            <div className="p-3 bg-linear-to-br from-green-600 to-emerald-600 rounded-xl">
                                 <ShoppingBag className="w-8 h-8 text-white" />
                             </div>
                             <div>
@@ -99,7 +87,7 @@ export default function AdminOrdenDetalle() {
                                         <User className="w-5 h-5 text-blue-400" />
                                         Información del Usuario
                                     </h3>
-                                    <p className="text-gray-300">ID: {orden.idUsuario}</p>
+                                    <p className="text-gray-300">Nombre: {orden.nombreUsuario}</p>
                                     {orden.emailUsuario && (
                                         <p className="text-gray-300">Email: {orden.emailUsuario}</p>
                                     )}
@@ -110,9 +98,9 @@ export default function AdminOrdenDetalle() {
                                         <BookOpen className="w-5 h-5 text-purple-400" />
                                         Información del Libro
                                     </h3>
-                                    <p className="text-gray-300">ID: {orden.idLibro}</p>
+                                    <p className="text-gray-300">Título: {orden.tituloLibro}</p>
                                     {orden.tituloLibro && (
-                                        <p className="text-gray-300">Título: {orden.tituloLibro}</p>
+                                        <p className="text-gray-300"> Autor: {orden.autorLibro}</p>
                                     )}
                                 </div>
                             </div>
@@ -126,7 +114,6 @@ export default function AdminOrdenDetalle() {
                                     <p className="text-gray-300">
                                         Monto Total: <span className="text-white font-bold">${orden.montoTotal.toFixed(2)}</span>
                                     </p>
-                                    <p className="text-gray-300">Método de Pago ID: {orden.idMetodoPago}</p>
                                     {orden.nombreMetodoPago && (
                                         <p className="text-gray-300">Método: {orden.nombreMetodoPago}</p>
                                     )}

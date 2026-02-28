@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import {ArrowLeft,ShoppingBag,RefreshCw,Eye,CheckCircle,XCircle,Clock,Truck,Search,Filter} from "lucide-react";
+import {ArrowLeft,ShoppingBag,RefreshCw,Eye,CheckCircle,XCircle,Clock,Search,Filter} from "lucide-react";
 
 import type { Orden } from "../../types/orden";
 import { getAllOrdenes, updateEstadoOrden } from "../../services/ordenService";
@@ -103,7 +103,6 @@ export default function AdminOrdenes() {
             case 'PENDIENTE': return <Clock className="w-4 h-4 text-yellow-400" />;
             case 'APROBADO': return <CheckCircle className="w-4 h-4 text-green-400" />;
             case 'RECHAZADO': return <XCircle className="w-4 h-4 text-red-400" />;
-            case 'ENTREGADO': return <Truck className="w-4 h-4 text-blue-400" />;
             default: return null;
         }
     };
@@ -113,13 +112,12 @@ export default function AdminOrdenes() {
             case 'PENDIENTE': return 'bg-yellow-900/30 text-yellow-300 border-yellow-700/50';
             case 'APROBADO': return 'bg-green-900/30 text-green-300 border-green-700/50';
             case 'RECHAZADO': return 'bg-red-900/30 text-red-300 border-red-700/50';
-            case 'ENTREGADO': return 'bg-blue-900/30 text-blue-300 border-blue-700/50';
             default: return 'bg-gray-900/30 text-gray-300 border-gray-700/50';
         }
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
+        <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col">
             <div className="flex-1 p-4 md:p-6">
                 <div className="max-w-7xl mx-auto">
                     {/* Header */}
@@ -133,7 +131,7 @@ export default function AdminOrdenes() {
                         </button>
 
                         <div className="flex items-center gap-4 mb-6">
-                            <div className="p-3 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl">
+                            <div className="p-3 bg-linear-to-br from-green-600 to-emerald-600 rounded-xl">
                                 <ShoppingBag className="w-8 h-8 text-white" />
                             </div>
                             <div>
@@ -154,12 +152,13 @@ export default function AdminOrdenes() {
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Buscar por ID o email..."
+                                    placeholder="Buscar por email"
                                     value={busqueda}
                                     onChange={(e) => setBusqueda(e.target.value)}
                                     className="w-full pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
                                 />
                             </div>
+                            
                             <div className="flex items-center gap-2">
                                 <Filter className="w-4 h-4 text-gray-400" />
                                 <select
@@ -171,7 +170,7 @@ export default function AdminOrdenes() {
                                     <option value="PENDIENTE">Pendiente</option>
                                     <option value="APROBADO">Aprobado</option>
                                     <option value="RECHAZADO">Rechazado</option>
-                                    <option value="ENTREGADO">Entregado</option>
+
                                 </select>
                                 <button
                                     onClick={loadOrdenes}
@@ -227,25 +226,35 @@ export default function AdminOrdenes() {
                                                     </span>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                                                 {/* Datos del Usuario*/}
+                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-3">
                                                     <div>
-                                                        <p className="text-gray-400 text-xs">Usuario</p>
+                                                        <p className="text-gray-400 text-xs">Email del Usuario</p>
                                                         <p className="text-white text-sm font-medium">
-                                                            ID: {orden.idUsuario}
-                                                            {orden.emailUsuario && ` - ${orden.emailUsuario}`}
+                                                            {orden.emailUsuario}
                                                         </p>
                                                     </div>
+
+                                                    {/* Titulo del libro */}
                                                     <div>
                                                         <p className="text-gray-400 text-xs">Libro</p>
                                                         <p className="text-white text-sm font-medium">
-                                                            ID: {orden.idLibro}
-                                                            {orden.tituloLibro && ` - ${orden.tituloLibro}`}
+                                                            {orden.tituloLibro}
                                                         </p>
                                                     </div>
+                                                    {/* Monto de la orden */}
                                                     <div>
                                                         <p className="text-gray-400 text-xs">Monto</p>
                                                         <p className="text-white text-sm font-medium">
                                                             ${orden.montoTotal.toFixed(2)}
+                                                        </p>
+                                                    </div>
+
+                                                    {/*Referencia falsa*/}
+                                                    <div>
+                                                        <p className="text-gray-400 text-xs">Referencia</p>
+                                                        <p className="text-white text-shadow-sm font-medium">
+                                                            {Math.random().toFixed(8)}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -266,7 +275,6 @@ export default function AdminOrdenes() {
                                                     <option value="PENDIENTE">Pendiente</option>
                                                     <option value="APROBADO">Aprobado</option>
                                                     <option value="RECHAZADO">Rechazado</option>
-                                                    <option value="ENTREGADO">Entregado</option>
                                                 </select>
                                                 <button
                                                     onClick={() => handleVerDetalle(orden.id)}

@@ -7,6 +7,10 @@ import Home from "../pages/book/Home";
 import BookDetail from "../pages/book/BookDetail";
 import NotFound from "../pages/book/NotFound";
 import Register from "../pages/login/register";
+import RealizarPago from "../pages/book/RealizarPago";
+import MiCompraDetalle from "../pages/book/MiCompraDetalle";
+import MisCompras from "../pages/book/MisCompras";
+
 
 // RUTAS PARA EL ADMINISTRADOR
 import AdminLayout from "../layouts/AdminLayout";
@@ -29,6 +33,10 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="user/Register" element={<Register/>} />
       <Route path="/verify" element={<VerifyEmail />} />
+      <Route path="/realizar-pago" element={<RealizarPago />} />
+      <Route path="/mis-compras" element={<MisCompras/>} />
+      <Route path="/mis-compras/:id" element={<MiCompraDetalle />} />
+      
 
 
       {/* RUTAS PRIVADAS ADMIN */}

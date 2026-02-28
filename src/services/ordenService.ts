@@ -14,10 +14,16 @@ export const getOrdenById = async (id: number): Promise<Orden> => {
     return response.data;
 };
 
-// OBTENER ORDENES POR USUARIOS
+// OBTENER ORDENES POR USUARIOS //////////////////////////////////////////////////////
 export const getOrdenesByUsuario = async (idUsuario: number): Promise<Orden[]> => {
-    const response = await api.get(`/api/ordenes/usuario/${idUsuario}`);
-    return response.data;
+    try{
+        const response = await api.get(`/api/ordenes/usuario/${idUsuario}`);
+        return response.data;
+    } catch(error) {
+        console.error("Error obteniendo órdenes del usuario:", error);
+        throw error;
+    }
+    
 };
 
 // OBTENER UN USUARIO POR EMAIL

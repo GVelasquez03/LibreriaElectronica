@@ -158,7 +158,7 @@ export default function Register() {
                     </div>
                     <button
                         onClick={() => navigate('/login')}
-                        className="w-full py-3 rounded-lg bg-gradient-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold"
+                        className="w-full py-3 rounded-lg bg-linear-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold"
                     >
                         Ir al inicio de sesión
                     </button>
@@ -330,7 +330,7 @@ export default function Register() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 rounded-lg bg-gradient-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold transition shadow-[0_0_30px_#735CDB99] hover:from-[#8f7fff] hover:to-[#735CDB] disabled:opacity-50 mt-4"
+                        className="w-full py-3 rounded-lg bg-linear-to-r from-[#735CDB] to-[#8f7fff] text-white font-semibold transition shadow-[0_0_30px_#735CDB99] hover:from-[#8f7fff] hover:to-[#735CDB] disabled:opacity-50 mt-4"
                     >
                         {loading ? (
                             <span className="flex items-center justify-center gap-2">

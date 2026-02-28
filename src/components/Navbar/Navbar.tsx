@@ -94,6 +94,21 @@ export default function Navbar() {
                 Inicio
               </span>
 
+
+              <span
+                className="nav-link cursor-pointer px-4 py-2 transition-all duration-300 hover:bg-[#735CDB]/20  hover:scale-105"
+                onClick={() => { }}
+              >
+                Popular
+              </span>
+
+              <span
+                className="nav-link cursor-pointer px-4 py-2 transition-all duration-300 hover:bg-[#735CDB]/20  hover:scale-105"
+                onClick={() => navigate("/mis-compras")}
+              >
+                Mis compras
+              </span>
+
               <div className="relative group">
                 <select
                   value={selectedCategory}
@@ -112,12 +127,6 @@ export default function Navbar() {
                 </div>
               </div>
 
-              <span
-                className="nav-link cursor-pointer px-4 py-2 transition-all duration-300 hover:bg-[#735CDB]/20  hover:scale-105"
-                onClick={() => { }}
-              >
-                Popular
-              </span>
             </>
           ) : (
             <>

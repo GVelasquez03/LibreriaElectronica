@@ -1,14 +1,20 @@
 export interface Orden {
     id: number;
     montoTotal: number;
-    estado: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO' | 'ENTREGADO';
+    estado: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO';
     fechaCreacion: string;
+
     idUsuario: number;
-    emailUsuario?: string;
-    idMetodoPago: number;
-    nombreMetodoPago?: string;
+    nombreUsuario : string;
+    emailUsuario : string;
+
     idLibro: number;
     tituloLibro?: string;
+    autorLibro: string;
+
+    idMetodoPago: number;
+    nombreMetodoPago?: string;
+    
 }
 
 export interface OrdenRequest {
