@@ -1,5 +1,4 @@
 package com.ebook.ebookapi.orden.service;
-
 import com.ebook.ebookapi.book.modelo.Book;
 import com.ebook.ebookapi.book.repository.BookRepository;
 import com.ebook.ebookapi.metodopago.Repository.MetodoPagoRepository;
@@ -52,9 +51,9 @@ public class OrdenService implements IOrdenService {
 
     // Listar orden por usuario
     @Override
-    public List<OrdenDTO> listarPorUsuario(Long idUsuario) {
-        Usuario usuario = usuarioRepositorio.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public List<OrdenDTO> listarPorUsuario(String email) {
+        Usuario usuario = usuarioRepositorio.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario por email no encontrado"));
 
         return ordenRepository.findByUsuario(usuario)
                 .stream()

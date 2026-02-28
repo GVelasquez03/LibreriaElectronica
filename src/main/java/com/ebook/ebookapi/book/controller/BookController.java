@@ -1,5 +1,6 @@
 package com.ebook.ebookapi.book.controller;
 
+import com.ebook.ebookapi.book.dto.BookDTO;
 import com.ebook.ebookapi.book.dto.BookRequestDTO;
 import com.ebook.ebookapi.book.modelo.Book;
 import com.ebook.ebookapi.book.servicio.FileStorageService;
@@ -84,27 +85,27 @@ public class BookController {
     @GetMapping("/pdf/preview/{filename:.+}")
     public ResponseEntity<Resource> getPdfPreview(@PathVariable String filename) {
         try {
-            // Obtener PDF recortado (solo 2 páginas)
             Resource resource = fileStorageService.getTwoPagePreview(filename);
 
-            // Configurar headers para iframe
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "inline; filename=\"preview_" + filename + "\"")
-                    .header("X-Frame-Options", "ALLOW-FROM http://localhost:3000")
+                    // CAMBIO AQUÍ: Reemplazamos X-Frame-Options por CSP frame-ancestors
+                    .header("Content-Security-Policy", "frame-ancestors 'self' http://localhost:5173")
                     .header("Cache-Control", "no-store, must-revalidate")
                     .header("Pragma", "no-cache")
                     .header("Expires", "0")
                     .body(resource);
 
         } catch (IOException e) {
-            // Si falla el recorte, devolver PDF completo como fallback
             Resource resource = fileStorageService.loadFileAsResource(filename);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_PDF)
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "inline; filename=\"" + filename + "\"")
+                    // También añade el CSP aquí para el fallback
+                    .header("Content-Security-Policy", "frame-ancestors 'self' http://localhost:5173")
                     .body(resource);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
@@ -142,5 +143,16 @@ public class BookController {
     public List<Book> getByCategory(@PathVariable String categoryName) {
         // Este método funcionará siempre que el Service use 'findByCategoryNameIgnoreCase'
         return servicioBook.encontrarPorCategoria(categoryName);
+    }
+
+    // Buscar un libro por Autor y titulo
+    @GetMapping("/search")
+    public ResponseEntity<List<BookDTO>> searchBooks(@RequestParam String q) {
+        if (q == null || q.trim().isEmpty()) {
+            return ResponseEntity.ok(List.of()); // Lista vacía
+        }
+
+        List<BookDTO> books = servicioBook.searchBooks(q.trim());
+        return ResponseEntity.ok(books);
     }
 }

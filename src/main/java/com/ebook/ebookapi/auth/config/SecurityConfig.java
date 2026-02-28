@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // RUTAS PUBLICAS
                         .requestMatchers("/api/auth/**", "/api/books/**", "/auth/**",
-                                "/api/categories/**", "user/register","api/metodos-pago/**").permitAll()
+                                "/api/categories/**", "user/register","api/metodos-pago/**", "api/ordenes/**").permitAll()
 
                         // SOLO ADMIN
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

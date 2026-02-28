@@ -71,8 +71,4 @@ public class MetodoPagoService implements IMetodoPago {
         return "El Metodo de pago con el id: "+id+" fue eliminado";
     }
 
-    @Override
-    public MetodoPagoDTO convertirADTO(MetodoPago metodoPago) {
-        return null;
-    }
 }

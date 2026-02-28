@@ -1,7 +1,8 @@
 package com.ebook.ebookapi.orden.Controller;
-
 import com.ebook.ebookapi.orden.dtos.OrdenDTO;
 import com.ebook.ebookapi.orden.service.OrdenService;
+import com.ebook.ebookapi.user.dtos.UserOrdenDTO;
+import com.ebook.ebookapi.user.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.ebook.ebookapi.orden.dtos.OrdenRequest;
@@ -13,9 +14,11 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 public class OrdenController {
     private final OrdenService ordenService;
+    private final UserService userService;
 
-    public OrdenController(OrdenService ordenService){
+    public OrdenController(OrdenService ordenService, UserService userService){
         this.ordenService = ordenService;
+        this.userService = userService;
     }
 
     // Obtener todas las órdenes
@@ -24,16 +27,22 @@ public class OrdenController {
         return ResponseEntity.ok(ordenService.listarTodas());
     }
 
-    // Obtener órdenes por Id
+    // Listado de órdenes por usuarios
+    @GetMapping("/compras")
+    public ResponseEntity<List<OrdenDTO>> listarPorUsuario(@RequestParam String email) {
+        return ResponseEntity.ok(ordenService.listarPorUsuario(email));
+    }
+
+    // Obtener una orden by id
     @GetMapping("/{id}")
-    public ResponseEntity<OrdenDTO> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<OrdenDTO> obtenerOrdenById(@PathVariable Long id) {
         return ResponseEntity.ok(ordenService.obtenerPorId(id));
     }
 
-    // Listado de órdenes por usuarios
-    @GetMapping("/usuario/{idUsuario}")
-    public ResponseEntity<List<OrdenDTO>> listarPorUsuario(@PathVariable Long idUsuario) {
-        return ResponseEntity.ok(ordenService.listarPorUsuario(idUsuario));
+    // Obtener un usuario por email
+    @GetMapping("/buscar")
+    public ResponseEntity<UserOrdenDTO> obtenerUserByEmail(@RequestParam String email) {
+        return ResponseEntity.ok(userService.obtenerUsuarioByEmail(email));
     }
 
     // Crear una orden

@@ -1,5 +1,6 @@
 package com.ebook.ebookapi.user.repositorioUsuario;
 
+import com.ebook.ebookapi.user.dtos.UserOrdenDTO;
 import com.ebook.ebookapi.user.modelo.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 

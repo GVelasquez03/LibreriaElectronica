@@ -18,9 +18,21 @@ public class OrdenMapper {
         ordenDTO.setMontoTotal(orden.getMontoTotal());
         ordenDTO.setEstado(orden.getEstado());
 
+        // Datos del usuario
         ordenDTO.setIdUsuario(orden.getUsuario().getId());
-        ordenDTO.setIdMetodoPago(orden.getMetodoPago().getId());
+        ordenDTO.setNombreUsuario(orden.getUsuario().getNombreCompleto());
+        ordenDTO.setEmailUsuario(orden.getUsuario().getEmail());
+
+        // Datos del libro
         ordenDTO.setIdLibro(orden.getLibro().getId());
+        ordenDTO.setTituloLibro(orden.getLibro().getTitle());
+        ordenDTO.setAutorLibro(orden.getLibro().getAuthor());
+        ordenDTO.setPdfFileName(orden.getLibro().getPdfFilename());
+
+        // Datos del Metodo de pago
+        ordenDTO.setIdMetodoPago(orden.getMetodoPago().getId());
+        ordenDTO.setNombreMetodoPago(orden.getMetodoPago().getNombre());
+
         return ordenDTO;
     }
 

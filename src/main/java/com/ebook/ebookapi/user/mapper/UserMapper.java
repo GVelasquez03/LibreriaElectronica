@@ -1,8 +1,10 @@
 package com.ebook.ebookapi.user.mapper;
 
 import com.ebook.ebookapi.user.dtos.RegisterRequest;
+import com.ebook.ebookapi.user.dtos.UserOrdenDTO;
 import com.ebook.ebookapi.user.modelo.Role;
 import com.ebook.ebookapi.user.modelo.Usuario;
+
 
 public class UserMapper {
 
@@ -12,13 +14,14 @@ public class UserMapper {
         usuario.setNombreCompleto(registerRequest.getNombreCompleto());
         usuario.setEmail(registerRequest.getEmail());
         usuario.setFechaNacimiento(registerRequest.getFechaNacimiento());
-        usuario.setPassword(registerRequest.getPassword());
         usuario.setPais(registerRequest.getPais());
         usuario.setRole(Role.USER);
         usuario.setVerified(false);
 
         return usuario;
     }
+
+
 
     // Convertir un usuario a un dto
     public static RegisterRequest toDto(Usuario usuario){
@@ -31,6 +34,15 @@ public class UserMapper {
         usuarioDto.setVerificationToken(usuario.getVerificationToken());
 
         return  usuarioDto;
+    }
+
+    // Convertir un usuario a un dto
+    public static UserOrdenDTO toOrdenDTO(Usuario usuario){
+       UserOrdenDTO userOrdenDTO = new UserOrdenDTO();
+       userOrdenDTO.setId(usuario.getId());
+       userOrdenDTO.setNombreCompleto(usuario.getNombreCompleto());
+       userOrdenDTO.setPais(usuario.getPais());
+        return  userOrdenDTO;
     }
 
 }

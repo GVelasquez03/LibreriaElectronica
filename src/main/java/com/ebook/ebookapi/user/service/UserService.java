@@ -1,6 +1,7 @@
 package com.ebook.ebookapi.user.service;
 
 import com.ebook.ebookapi.user.dtos.RegisterRequest;
+import com.ebook.ebookapi.user.dtos.UserOrdenDTO;
 import com.ebook.ebookapi.user.mapper.UserMapper;
 import com.ebook.ebookapi.user.modelo.Role;
 import com.ebook.ebookapi.user.modelo.Usuario;
@@ -9,6 +10,7 @@ import com.ebook.ebookapi.user.repositorioUsuario.UsuarioRepositorio;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class UserService implements IUserService {
@@ -31,6 +33,9 @@ public class UserService implements IUserService {
         }
         Usuario user = UserMapper.toEntity(request);
 
+        // Encoodear password
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+
         // Usar el token que enviá el frontend
         user.setVerificationToken(request.getVerificationToken());
         user.setVerificationExpires(LocalDateTime.now().plusHours(24));
@@ -38,9 +43,20 @@ public class UserService implements IUserService {
         return userRepositorio.save(user);
     }
 
+    // Encontrar usuario por email
+    @Override
+    public UserOrdenDTO obtenerUsuarioByEmail(String email) {
+        Usuario usuario = userRepositorio.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email user no encontrado"));
+        return UserMapper.toOrdenDTO(usuario);
+    }
+
+    // Encontrar
+
     // Verificar token Emailjs
     public Usuario findByVerificationToken(String token) {
         return userRepositorio.findByVerificationToken(token)
                 .orElseThrow(() -> new RuntimeException("Token de verificación no encontrado"));
     }
+
 }

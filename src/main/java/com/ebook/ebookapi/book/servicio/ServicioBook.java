@@ -1,13 +1,16 @@
 package com.ebook.ebookapi.book.servicio;
 
+import com.ebook.ebookapi.book.dto.BookDTO;
 import com.ebook.ebookapi.book.dto.BookRequestDTO;
 import com.ebook.ebookapi.book.modelo.Book;
 import com.ebook.ebookapi.book.repository.BookRepository;
 import com.ebook.ebookapi.categoria.Category;
 import com.ebook.ebookapi.categoria.CategoryRepository;
 import org.springframework.stereotype.Service;
+import com.ebook.ebookapi.book.mapper.BookMapper;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ServicioBook implements IServicioBook{
@@ -95,5 +98,18 @@ public class ServicioBook implements IServicioBook{
     public List<Book> encontrarPorCategoria(String categoryName) {
         // Usamos el metodo corregido
         return bookrepository.findByCategoryNameIgnoreCase(categoryName);
+    }
+
+    // Obtener libros por título y autor
+    public List<BookDTO> searchBooks(String query) {
+        String searchTerm = "%" + query.toLowerCase() + "%";
+
+        List<Book> books =bookrepository.findByTitleContainingIgnoreCaseOrAuthorContainingIgnoreCase(
+                query, query
+        );
+
+        return books.stream()
+                .map(BookMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

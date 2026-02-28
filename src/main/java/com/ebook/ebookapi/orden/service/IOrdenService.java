@@ -13,7 +13,7 @@ public interface IOrdenService {
     OrdenDTO obtenerPorId(Long id);
 
     // Listar Orden por Usuario
-    List<OrdenDTO> listarPorUsuario(Long idUsuario);
+    List<OrdenDTO> listarPorUsuario(String email);
 
     // Crear una orden
     OrdenDTO crearOrden(OrdenRequest request);

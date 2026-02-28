@@ -22,6 +22,4 @@ public interface IMetodoPago {
     // Eliminar Metodo de pago
     String eliminar(Long id);
 
-    // Convertir a dto
-    MetodoPagoDTO convertirADTO(MetodoPago metodoPago);
 }
