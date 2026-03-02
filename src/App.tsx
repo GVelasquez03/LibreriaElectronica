@@ -7,7 +7,7 @@ export default function App() {
   const location = useLocation();
 
   // Rutas donde NO queremos navbar
-  const hideNavbarRoutes = ["/login", "/user/register"];
+  const hideNavbarRoutes = ["/login", "/user/register", "/privacidad","/faq"];
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
   return (
     <div>

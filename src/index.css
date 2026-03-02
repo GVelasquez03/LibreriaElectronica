@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+
+@theme {
+    /* 2. Creas el nombre de la clase (font-betania) */
+    /* Nota: Usamos comillas dobles para el nombre con espacios */
+    --font-sans: "Manrope", serif;
+    --font-Oswald: "Roboto Condensed", serif;
+}

@@ -81,7 +81,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#181d27] text-white">
+    <nav className="sticky top-0 z-50 bg-[#181d27] text-white font-Oswald">
       <div className="flex items-center justify-between px-4 py-4 md:px-6">
         {/* Logo */}
         <div

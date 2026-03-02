@@ -5,17 +5,14 @@ import { getBookById } from "../../services/bookService";
 import { getAllCategories } from "../../services/CategoryService";
 import { ArrowLeft, BookOpen, User, DollarSign, Tag, ShoppingCart, Lock, Maximize2 } from "lucide-react";
 import type { Categoria } from "../../types/categoria";
-//import Swal from "sweetalert2";
-//import { createOrden, getUsuarioByEmail } from "../../services/ordenService";
-//import { getCurrentUser } from '../../services/authApi';
-//import { isAuthenticated } from "../../services/authService";
+import { getCurrentUser } from "../../services/authApi";
+import Swal from "sweetalert2";
 
 export default function BookDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [bookRequest, setBook] = useState<BookRequest | null>(null);
   const [categories, setCategories] = useState<Categoria[]>([]);
-  //const [comprando, setComprando] = useState(false);
   const [loading, setLoading] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [, setPdfError] = useState(false);
@@ -47,6 +44,10 @@ export default function BookDetail() {
     const category = categories.find(c => c.id === bookRequest.category.id);
     return category?.name || `ID: ${bookRequest.category.name}`;
   };
+
+  
+  const tokenUser = getCurrentUser();
+
 
   // URL DEL PDF CON PARAMETROS PARA VISTA PREVIA RESTRINGIDA 
   const getRestrictedPdfUrl = () => {
@@ -87,6 +88,23 @@ export default function BookDetail() {
       </div>
     );
   }
+  //  Verificar 
+  const HandleVerifi = () =>{
+    if (!tokenUser?.email) {
+      Swal.fire({
+        icon: "error",
+        title: "Acceso denegado",
+        text: "Registrate para Realizar una compra",
+        background: "#1f2937",
+        color: "#fff",
+      }).then(() => navigate("/login"));
+      return;
+    }else{
+      navigate("/realizar-pago", { state: { libro: bookRequest } })
+    }
+  }
+  
+
 
   // SI EL LIBRO NO EXISTE
   if (!bookRequest) {
@@ -104,75 +122,6 @@ export default function BookDetail() {
       </div>
     );
   }
-
-  // NUEVA FUNCIONALIDAD PARA IMPLEMENTAR ORDEN DE COMPRA DE UN LIBRO
- /* const handleComprar = async () => {
-    if (comprando) return; // Evita doble click
-    setComprando(true);
-
-    try {
-
-      if (!isAuthenticated()) {
-        Swal.fire({
-          icon: "warning",
-          title: "Inicia sesión",
-          text: "Debes iniciar sesión para comprar",
-          confirmButtonColor: "#735CDB",
-          background: "#1f2937",
-          color: "#fff",
-        }).then(() => navigate("/login"));
-        return;
-      }
-
-      // OBTENER DATOS DEL USUARIO ACTUAL ATRAVES DEL TOKEN
-      const usuario = getCurrentUser();
-
-      // MANEJAR ERROR ESPECIFICO
-      if (!usuario?.email) {
-        Swal.fire({
-          icon: "error",
-          title: "Error",
-          text: "No se pudo obtener la información del usuario",
-        });
-        return;
-      }
-
-      // OBTENER DATOS COMPLETOS DEL USUARIO PARA LA ORDEN
-      const userData = await getUsuarioByEmail(usuario.email);
-
-      console.log("Datos del Usuario:", userData);
-
-      // validar que el usuario tenga id
-      if (!userData?.id) { throw new Error("Usuario no encontrado"); }
-
-      // CREAR ORDEN
-      const ordenData = {
-        idUsuario: userData.id,
-        idLibro: bookRequest.id,
-        idMetodoPago: 1, // Por defecto o seleccionado
-        montoTotal: bookRequest.price
-      };
-      console.log("orden Data:", ordenData);
-      await createOrden(ordenData);
-
-      Swal.fire({
-        icon: "success",
-        title: "¡Compra realizada!",
-        text: "Tu orden ha sido creada exitosamente",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: "No se pudo procesar la compra:" + error,
-      });
-    } finally {
-      setComprando(false);
-    }
-  };*/
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-900 to-gray-800 p-4 md:p-8">
@@ -223,7 +172,7 @@ export default function BookDetail() {
                         </span>
                       </div>
                       <button
-                        onClick={() => navigate("/realizar-pago", { state: { libro: bookRequest } })}
+                        onClick={() => {HandleVerifi()}} 
                         className="px-5 ml-2 py-3 bg-linear-to-br from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition font-semibold shadow-lg shadow-orange-500/20 flex items-center gap-2"
                       >
                         <ShoppingCart className="w-5 h-5" />

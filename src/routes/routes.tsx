@@ -10,6 +10,10 @@ import Register from "../pages/login/register";
 import RealizarPago from "../pages/book/RealizarPago";
 import MiCompraDetalle from "../pages/book/MiCompraDetalle";
 import MisCompras from "../pages/book/MisCompras";
+import FAQ from "../pages/infoVersora/FAQ";
+import Privacidad from "../pages/infoVersora/Privacidad";
+
+
 
 
 // RUTAS PARA EL ADMINISTRADOR
@@ -22,6 +26,7 @@ import VerifyEmail from "../pages/auth/VerifyEmail";
 import AdminMetodoPago from "../pages/admin/AdminMpago";
 import AdminOrdenes from "../pages/admin/AdminOrdenes";
 import AdminOrdenDetalle from "../pages/admin/AdminOrdenDetalle";
+
 
 export default function AppRoutes() {
   return (
@@ -36,6 +41,8 @@ export default function AppRoutes() {
       <Route path="/realizar-pago" element={<RealizarPago />} />
       <Route path="/mis-compras" element={<MisCompras/>} />
       <Route path="/mis-compras/:id" element={<MiCompraDetalle />} />
+      <Route path="/faq" element={<FAQ />} />
+      <Route path="/privacidad" element={<Privacidad />} />
       
 
 

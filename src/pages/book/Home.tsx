@@ -161,7 +161,7 @@ export default function Home() {
   const categoriesToShow = category ? [category] : categories;
 
   return (
-    <div className="min-h-screen bg-[#151515]">
+    <div className="min-h-screen bg-linear-to-br from-black via-gray-800 to-gray-800">
       {/* Filtros activos */}
       {(category || searchQuery) && (
         <div className="px-6 pt-6">

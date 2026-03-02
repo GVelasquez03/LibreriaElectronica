@@ -108,7 +108,7 @@ export default function AdminHome() {
     }
 
     return (
-        <div className="min-h-screen bg-[#151515] px-6 py-6">
+        <div className="min-h-screen bg-linear-to-br  from-black via-gray-800 to-gray-800 px-8 py-6">
             {/* Mostrar filtros activos */}
             <div className="mb-6 px-6">
                 
@@ -130,12 +130,6 @@ export default function AdminHome() {
                 
             </div>
 
-            {/* Título y contador */}
-            <div className="px-6 mb-4">
-                <h2 className="text-xl text-[#735CDB]">
-                    {filteredBooks.length} libro{filteredBooks.length !== 1 ? 's' : ''} encontrado{filteredBooks.length !== 1 ? 's' : ''}
-                </h2>
-            </div>
 
             {/* GRID */}
             <BookGrid
