@@ -16,7 +16,7 @@ export default function BookCard({
 }: Props) {
   const Card = (
     <div className="
-      relative w-[220px]
+      relative w-55
       transition-transform duration-200
       group
       cursor-pointer
@@ -61,7 +61,7 @@ export default function BookCard({
         alt={book.title}
         loading="lazy"
         className="
-          w-full h-[300px]
+          w-full h-75
           object-cover
         "
       />

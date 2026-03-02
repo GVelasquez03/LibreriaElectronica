@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Book } from "../../types/book";
 import BookCard from "../BookCard/BookCard";
-import "./carousel.css";
+import "./Carousel.css";
 
 interface Props {
   books: Book[];
