@@ -1,5 +1,6 @@
 import emailjs from '@emailjs/browser';
 
+
 // Configuración - OBTÉN ESTOS DATOS DE TU DASHBOARD EMAILJS
 const EMAILJS_CONFIG = {
     SERVICE_ID: 'service_1md5ngj', // En "Email Services"
@@ -16,7 +17,7 @@ export const sendVerificationEmail = async (
     verificationToken: string
 ): Promise<boolean> => {
     try {
-        const verificationLink = `http://localhost:5173/verify?token=${verificationToken}`; 
+        const verificationLink = `https://libreria-electronica-4jko.vercel.app/verify?token=${verificationToken}`;
 
         const templateParams = {
             email: userEmail,
