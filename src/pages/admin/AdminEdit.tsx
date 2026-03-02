@@ -1,16 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import {
-    ArrowLeft,
-    BookOpen,
-    Upload,
-    DollarSign,
-    User,
-    Image,
-    Tag,
-    Edit
-} from "lucide-react";
+import { ArrowLeft, BookOpen, Upload, DollarSign, User, Image, Tag, Edit } from "lucide-react";
 
 import { getBookById, updateBook } from "../../services/bookService";
 import { getAllCategories } from "../../services/CategoryService";
@@ -56,7 +47,7 @@ export default function AdminEdit() {
                         title: bookData.title,
                         author: bookData.author,
                         description: bookData.description || "",
-                        categoryId: bookData.categoryId || (bookData.categoryId|| 0),
+                        categoryId: bookData.category.id || 0,
                         cover: bookData.cover,
                         price: bookData.price
                     });
@@ -195,7 +186,7 @@ export default function AdminEdit() {
 
     if (!form) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+            <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
                     <p className="text-gray-300">Cargando libro...</p>
@@ -205,7 +196,7 @@ export default function AdminEdit() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-6">
+        <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 p-4 md:p-6">
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
@@ -218,7 +209,7 @@ export default function AdminEdit() {
                     </button>
 
                     <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-xl">
+                        <div className="p-3 bg-linear-to-br from-yellow-600 to-orange-600 rounded-xl">
                             <Edit className="w-8 h-8 text-white" />
                         </div>
                         <div>
@@ -368,7 +359,7 @@ export default function AdminEdit() {
                                     Vista previa de la portada actual
                                 </h4>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-24 h-32 bg-gradient-to-br from-gray-600 to-gray-800 rounded-md overflow-hidden flex-shrink-0 border border-gray-500">
+                                    <div className="w-24 h-32 bg-linear-to-br from-gray-600 to-gray-800 rounded-md overflow-hidden shrink-0 border border-gray-500">
                                         <img
                                             src={form.cover}
                                             alt="Preview"
@@ -405,7 +396,7 @@ export default function AdminEdit() {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="px-8 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white rounded-lg transition font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
+                                    className="px-8 py-3 bg-linear-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white rounded-lg transition font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
                                 >
                                     {loading ? (
                                         <>
