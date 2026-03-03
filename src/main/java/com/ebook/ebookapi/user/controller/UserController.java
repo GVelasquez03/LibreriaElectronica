@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("user/register")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://libreria-electronica-4jko.vercel.app")
 public class UserController {
 
     private final UserService userService;

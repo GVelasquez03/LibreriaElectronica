@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/metodos-pago")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://libreria-electronica-4jko.vercel.app")
 public class MetodoPagoController {
 
     private final MetodoPagoService metodoPagoService;

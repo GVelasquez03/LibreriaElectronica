@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/ordenes")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://libreria-electronica-4jko.vercel.app")
 public class OrdenController {
     private final OrdenService ordenService;
     private final UserService userService;

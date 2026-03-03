@@ -22,7 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/books")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "https://libreria-electronica-4jko.vercel.app")
 public class BookController {
 
     private final ServicioBook servicioBook;
@@ -92,7 +92,7 @@ public class BookController {
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "inline; filename=\"preview_" + filename + "\"")
                     // CAMBIO AQUÍ: Reemplazamos X-Frame-Options por CSP frame-ancestors
-                    .header("Content-Security-Policy", "frame-ancestors 'self' http://localhost:5173")
+                    .header("Content-Security-Policy", "frame-ancestors 'self' https://libreria-electronica-4jko.vercel.app http://localhost:5173")
                     .header("Cache-Control", "no-store, must-revalidate")
                     .header("Pragma", "no-cache")
                     .header("Expires", "0")
